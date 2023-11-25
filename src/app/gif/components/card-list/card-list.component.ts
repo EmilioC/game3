@@ -5,8 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-card-list',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './card-list.component.html',
-  styleUrl: './card-list.component.css'
+  templateUrl: './card-list.component.html'
 })
 export class CardListComponent {
 
