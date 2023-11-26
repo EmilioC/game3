@@ -1,0 +1,30 @@
+.container-fluid {
+  height: 100vh;
+  /* Hace que el contenedor ocupe toda la altura del viewport */
+  display: flex;
+  flex-direction: column;
+  /* Ordena los hijos en una columna */
+}
+
+.info {
+  background: #f8f9fa;
+  /* Color de fondo para distinguir la sección, reemplaza con tu color */
+  padding: 10px;
+  text-align: center;
+}
+
+.game {
+  flex-grow: 1;
+  /* Hace que el juego ocupe todo el espacio disponible */
+  background: #e9ecef;
+  /* Color de fondo para distinguir la sección, reemplaza con tu color */
+  padding: 10px;
+  text-align: center;
+}
+
+.gif {
+  background: #dee2e6;
+  /* Color de fondo para distinguir la sección, reemplaza con tu color */
+  padding: 10px;
+  text-align: center;
+}

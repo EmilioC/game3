@@ -1,10 +1,34 @@
-<div div class="d-flex">
-  <!-- Sidebar -- -->
+<!-- <div div class="d-flex">
   <app-sidebar></app-sidebar>
   <app-game></app-game>
+  <app-home class="flex-fill"></app-home>
+</div> -->
+<div class="container-fluid">
+  <!-- Fila para la información, ocupará una parte superior fija del viewport -->
+  <div class="row">
+    <div class="col-12">
+      <!-- Espacio para la información -->
+      <div class="info">
+        <app-sidebar></app-sidebar>
+      </div>
+    </div>
+  </div>
 
+  <!-- Fila para el juego, ocupará la mayor parte del viewport -->
+  <div class="row flex-grow-1">
+    <div class="col-12 d-flex flex-column justify-content-center">
+      <!-- Espacio para el juego -->
+      <div class="game">
+        <app-game></app-game>
+      </div>
+    </div>
+  </div>
 
-
-  <!-- Home Page -->
-  <!-- <app-home class="flex-fill"></app-home> -->
+  <!-- Fila para el GIF, ocupará una parte inferior fija del viewport -->
+  <div class="row">
+    <div class="col-12">
+      <!-- Espacio para el GIF -->
+      <div class="gif">GIF</div>
+    </div>
+  </div>
 </div>

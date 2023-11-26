@@ -1,1 +1,71 @@
-<h1>QUE TAL</h1>
+<div class="d-flex-center wrapper" (click)="jump()">
+  <div class="background" [ngStyle]="{
+      'background-size': container_width + 'px ' + container_height + 'px',
+      'width': container_width + 'px',
+      'height': container_height + 'px'
+    }">
+
+    <!-- Juego sin Iniciar -->
+    <div *ngIf="!gameStarted" class="d-flex-center text">
+      <section>
+        <!-- Bird logo -->
+        <img class="bird-logo" src="/assets/images/bird.gif" alt="">
+
+        <!-- Primer juego -->
+        <div *ngIf="!gameOver">
+          <div class="subtext">!! Cabra OH OE ¡¡</div>
+          Cabra fly
+        </div>
+
+        <!-- Juego Finalizado -->
+        <div *ngIf="gameOver">
+          <div class="subtext">Juego Finalizado</div>
+          Puntuaje: {{ score }}
+        </div>
+
+        <!-- Primer juego -->
+        <div *ngIf="!gameOver">
+          <div class="subtext"> by Carmen</div>
+          Flappy Bird
+        </div>
+
+        <!-- Juego Finalizado -->
+        <div *ngIf="gameOver">
+          <div class="subtext">Juego Finalizado</div>
+          Puntuaje: {{ score }}
+        </div>
+
+        <!-- Comenzar juego -->
+        <button (click)="startGame()" class="btn btn-warning rounded-pill">
+          {{ !gameOver ? 'Jugar' : 'Volver a Jugar' }}
+          <i class="bi bi-play-fill"></i> <!-- Bootstrap icon for play -->
+        </button>
+
+        <!-- Activar/Desactivar música -->
+        <button (click)="playMusic()" class="btn btn-success rounded-pill">
+          <i [class]="musicActive ? 'bi-volume-mute-fill' : 'bi-volume-up-fill'"></i>
+        </button>
+      </section>
+    </div>
+
+    <!-- Juego Iniciado -->
+
+    <section *ngIf="gameStarted">
+
+      <div class="score">{{score}}</div>
+
+      <!--  Obstaculo superior -->
+      <app-obstacle [height]="obstacle_height" [width]="obstacle_width" [left]="obstacle_position" [top]="0"
+        [rotation]="180">
+      </app-obstacle>
+      <!--  Bird -->
+      <app-bird [height]="bird_height" [width]="bird_width" [top]="bird_position"></app-bird>
+      <!--  Obstaculo superior -->
+      <app-obstacle [height]="container_height - obstacle_gap - obstacle_height" [width]="obstacle_width"
+        [left]="obstacle_position"
+        [top]="container_height - (obstacle_height +(container_height - obstacle_gap - obstacle_height))"
+        [rotation]="0"></app-obstacle>
+    </section>
+
+  </div>
+</div>

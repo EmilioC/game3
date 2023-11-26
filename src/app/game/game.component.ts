@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { BirdComponent } from './bird/bird.component';
+import { ObstacleComponent } from './obstacle/obstacle.component';
 
 @Component({
   selector: 'app-game',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BirdComponent, ObstacleComponent],
   templateUrl: './game.component.html',
   styleUrl: './game.component.css'
 })
@@ -40,10 +42,13 @@ export class GameComponent implements OnInit {
     this.obstacle_interval = setInterval(this.moveObstacle.bind(this), 24);
   }
 
+
+
   // ====== Tamaño del contenedor del juego ======
   setContainerSize() {
     this.container_height = window.innerHeight;
-    this.container_width = window.innerWidth < 576 ? window.innerWidth : 576;
+    this.container_width = window.innerWidth < 576 ? window.innerWidth : 800;
+    /* this.container_width = window.innerWidth < 576 ? window.innerWidth : 576; */
   }
 
   // ===== Iniciar juego ====
