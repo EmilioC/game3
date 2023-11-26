@@ -1,30 +1,30 @@
-.container-fluid {
+/* En tu app.component.css */
+.game-container {
+  position: relative;
   height: 100vh;
-  /* Hace que el contenedor ocupe toda la altura del viewport */
-  display: flex;
-  flex-direction: column;
-  /* Ordena los hijos en una columna */
+  /* Asume que quieres que el contenedor del juego ocupe toda la altura de la pantalla */
 }
 
-.info {
-  background: #f8f9fa;
-  /* Color de fondo para distinguir la sección, reemplaza con tu color */
-  padding: 10px;
-  text-align: center;
+app-game {
+  width: 100%;
+  /* Asume que el componente del juego debe ocupar toda la anchura de su contenedor */
+  height: 90%;
+  /* Asume que el componente del juego debe ocupar el 90% de la altura de su contenedor */
+  /* Resto de tus estilos */
 }
 
-.game {
-  flex-grow: 1;
-  /* Hace que el juego ocupe todo el espacio disponible */
-  background: #e9ecef;
-  /* Color de fondo para distinguir la sección, reemplaza con tu color */
-  padding: 10px;
-  text-align: center;
-}
-
-.gif {
-  background: #dee2e6;
-  /* Color de fondo para distinguir la sección, reemplaza con tu color */
-  padding: 10px;
-  text-align: center;
+app-home {
+  position: absolute;
+  /* Posición absoluta para que se superponga sobre el juego */
+  top: 0;
+  /* Alineado a la parte superior del contenedor */
+  left: 0;
+  /* Alineado al lado izquierdo del contenedor */
+  width: 30%;
+  /* Asume que el componente de información debe ocupar toda la anchura de su contenedor */
+  height: 30%;
+  /* Asume que el componente de información debe ocupar el 30% de la altura de su contenedor */
+  z-index: 10;
+  /* Asegúrate de que la información se muestre sobre el juego */
+  /* Resto de tus estilos */
 }

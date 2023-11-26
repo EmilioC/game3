@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BirdComponent } from './bird/bird.component';
 import { ObstacleComponent } from './obstacle/obstacle.component';
@@ -34,6 +34,15 @@ export class GameComponent implements OnInit {
   bird_interval!: ReturnType<typeof setTimeout>;//Variable mantiene la caida
   obstacle_interval!: ReturnType<typeof setTimeout>;//Ejecutar contínuamente la función de generar obstáculos
 
+  private currentValue: boolean = false; // Valor inicial
+  @Output() valueChange = new EventEmitter<boolean>(); // EventEmitter que emite un booleano
+
+  notifyParent() {
+    this.currentValue = !this.currentValue; // Alternar entre true y false
+    this.valueChange.emit(this.currentValue); // Emitir el nuevo valor
+  }
+
+
   constructor() { }
 
   ngOnInit(): void {
@@ -42,12 +51,10 @@ export class GameComponent implements OnInit {
     this.obstacle_interval = setInterval(this.moveObstacle.bind(this), 24);
   }
 
-
-
   // ====== Tamaño del contenedor del juego ======
   setContainerSize() {
     this.container_height = window.innerHeight;
-    this.container_width = window.innerWidth < 576 ? window.innerWidth : 800;
+    this.container_width = window.innerWidth < 576 ? window.innerWidth : 576;
     /* this.container_width = window.innerWidth < 576 ? window.innerWidth : 576; */
   }
 
@@ -109,6 +116,7 @@ export class GameComponent implements OnInit {
     if (this.obstacle_position >= this.obstacle_width
       && this.obstacle_position <= this.obstacle_width + 80
       && (top_obstacle_collision || bottom_obstacle_collision)) { this.setGameOver() }
+
   }
 
 
