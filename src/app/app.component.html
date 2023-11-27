@@ -6,10 +6,6 @@
 
 <!-- app.component.html -->
 <div class="game-container">
-  <div class="alert alert-danger text-center" role="alert">
-    {{childValue}}
-  </div>
-  <!-- Utiliza el nuevo método en lugar de la asignación directa -->
   <app-game (valueChange)="childValue = $event"></app-game>
   <app-home *ngIf="childValue"></app-home>
 </div>

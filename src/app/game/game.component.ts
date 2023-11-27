@@ -38,10 +38,15 @@ export class GameComponent implements OnInit {
   @Output() valueChange = new EventEmitter<boolean>(); // EventEmitter que emite un booleano
 
   notifyParent() {
-    this.currentValue = !this.currentValue; // Alternar entre true y false
-    this.valueChange.emit(this.currentValue); // Emitir el nuevo valor
-  }
+    this.currentValue = true; // Asumiendo que quieres que se muestre inicialmente
+    this.valueChange.emit(this.currentValue); // Emitir el valor true
 
+    // Establece un temporizador para cambiar currentValue a false después de 500 ms
+    setTimeout(() => {
+      this.currentValue = false;
+      this.valueChange.emit(this.currentValue); // Emitir el valor false
+    }, 500);
+  }
 
   constructor() { }
 
@@ -63,6 +68,7 @@ export class GameComponent implements OnInit {
     this.gameStarted = true;
     this.gameOver = false;
     this.score = 0;
+    this.notifyParent()
 
   }
 
@@ -93,8 +99,10 @@ export class GameComponent implements OnInit {
     else {
       this.resetObstaclePosition();
       if (this.gameStarted) this.score++;
+      this.notifyParent()
     }
     this.checkCollision();
+
   }
 
   // ===== Mover obstáculos hacia adelante ====

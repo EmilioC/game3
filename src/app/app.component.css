@@ -14,17 +14,10 @@ app-game {
 }
 
 app-home {
-  position: absolute;
-  /* Posición absoluta para que se superponga sobre el juego */
+  position: fixed;
   top: 0;
-  /* Alineado a la parte superior del contenedor */
   left: 0;
-  /* Alineado al lado izquierdo del contenedor */
-  width: 30%;
-  /* Asume que el componente de información debe ocupar toda la anchura de su contenedor */
-  height: 30%;
-  /* Asume que el componente de información debe ocupar el 30% de la altura de su contenedor */
+  width: 100vw;
+  height: 100vh;
   z-index: 10;
-  /* Asegúrate de que la información se muestre sobre el juego */
-  /* Resto de tus estilos */
 }

@@ -9,8 +9,6 @@
     <div *ngIf="!gameStarted" class="d-flex-center text">
       <section>
 
-        <button type="button" class="alert alert-danger" (click)="notifyParent()">Notificar al Padre</button>
-
 
         <!-- Bird logo -->
         <img class="bird-logo" src="/assets/images/bird.gif" alt="">
@@ -24,7 +22,7 @@
         <!-- Juego Finalizado -->
         <div *ngIf="gameOver">
           <div class="subtext">Juego Finalizado</div>
-          Puntuaje: {{ score }}
+          Puntos: {{ score }}
         </div>
 
         <!-- Primer juego -->
