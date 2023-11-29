@@ -1,0 +1,11 @@
+{
+  "appService.zipIgnorePattern": [
+    "node_modules{,/**}",
+    ".vscode{,/**}"
+  ],
+  /*   "appService.defaultWebAppToDeploy": "/subscriptions/51a296c0-7cba-4d01-86db-36095f16a91d/resourceGroups/App_Angular_1/providers/Microsoft.Web/sites/game-2",
+  "appService.deploySubpath": "dist", */
+  /* CONFIGURACIÓN PARA DESPLEGAR EN https://chiquichat.azurewebsites.net/*/
+  "appService.defaultWebAppToDeploy": "/subscriptions/51a296c0-7cba-4d01-86db-36095f16a91d/resourceGroups/App_Angular_1/providers/Microsoft.Web/sites/ChiquiChat",
+  "appService.deploySubpath": "dist",
+}
