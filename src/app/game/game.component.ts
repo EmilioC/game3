@@ -45,7 +45,7 @@ export class GameComponent implements OnInit {
     setTimeout(() => {
       this.currentValue = false;
       this.valueChange.emit(this.currentValue); // Emitir el valor false
-    }, 500);
+    }, 700);
   }
 
   constructor() { }
