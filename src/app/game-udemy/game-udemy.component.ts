@@ -43,6 +43,31 @@ class Shield {
 }
 
 class Projectile {
+  game: Game;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  speed: number;
+  markedForDeletion = false;
+
+  constructor(game: Game, x: number, y: number) {
+    this.game = game;
+    this.x = x;
+    this.y = y;
+    this.width = 10;
+    this.height = 3;
+    this.speed = 3;
+    this.markedForDeletion = false;
+  }
+  update() {
+    this.x += this.speed;
+    if (this.x > this.game.width * 0.8) this.markedForDeletion = true;
+  }
+  draw(context: any) {
+    context.fillStyle = 'yellow';
+    context.fillRect(this.x, this.y, this.width, this.height);
+  }
 }
 
 class Particle {
@@ -56,6 +81,8 @@ class Player {
   y: number;
   speedY: number;
   maxSpeed: number;
+  projectiles: Projectile[];
+
   constructor(game: Game) {
 
     this.game = game;
@@ -64,20 +91,32 @@ class Player {
     this.x = 20;
     this.y = 100;
     this.speedY = 0;
-    this.maxSpeed = 2;
+    this.maxSpeed = 8;
+    this.projectiles = [];
 
   }
   update() {
-    if (this.game.keys.includes('ArrowUp')) this.speedY = this.maxSpeed;
+    if (this.game.keys.includes('ArrowUp')) this.speedY = -this.maxSpeed;
     else if (this.game.keys.includes('ArrowDown')) this.speedY = this.maxSpeed;
     else this.speedY = 0;
     this.y += this.speedY;
+    // handle projectiles
+    this.projectiles.forEach(projectile => {
+      projectile.update();
+    })
+    this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
   }
   draw(context: any) {
-    context.fillRect(this.x, this.y, this.width, this.height)
+    context.fillStyle = 'green  ';
+    context.fillRect(this.x, this.y, this.width, this.height);
+    this.projectiles.forEach(projectile => {
+      projectile.draw(context)
+    })
+
   }
   shootTop() {
-    // Implement the logic for shooting from the top here.
+    this.projectiles.push(new Projectile(this.game, this.x, this.y));
+    console.log(this.projectiles);
   }
 
 }
