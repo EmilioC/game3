@@ -1,1 +1,12 @@
-/* You can add global styles to this file, and also import other style files */
+.mobile-controls button {
+  -webkit-tap-highlight-color: transparent;
+  /* Deshabilita el resaltado al tocar en iOS y navegadores antiguos */
+  -webkit-touch-callout: none;
+  /* Deshabilita el menú de llamada en iOS */
+  -webkit-user-select: none;
+  /* Deshabilita la selección de texto en Safari */
+  user-select: none;
+  /* Deshabilita la selección de texto en navegadores estándar */
+  touch-action: manipulation;
+  /* Optimiza los eventos táctiles */
+}
