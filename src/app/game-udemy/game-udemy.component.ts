@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { withDebugTracing } from '@angular/router';
 
 class InputHandler {
   game: Game;
@@ -119,7 +120,7 @@ class Player {
   }
   shootTop() {
     if (this.game.ammo > 0) {
-      //this.x y this.y controlamos desde donde sale el disparo del objeto
+      //this.x y this.y controlamos desde donde sale el disparo desde el objeto
       this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
       this.game.ammo--;
     }
@@ -169,8 +170,7 @@ class Game {
   }
 }
 
-class Enemy {
-
+/* class Enemy {
   game: Game;
   x: number;
   y: number;
@@ -179,17 +179,15 @@ class Enemy {
   speedX: number;
   markedForDeletion: boolean;
   //REVISAR porque en el video nos los añade en la clase.
-
   constructor(game: Game) {
     this.game = game;
-    this.x = 4;
+    this.x = this.game.width;
     this.y = 5
     // Revisar  this.width y this.height
     this.width = this.game.width;
     this.height = this.game.height;
     this.speedX = Math.random() * -1.5 - 0.5;
     this.markedForDeletion = false;
-
   }
 
   update() {
@@ -201,9 +199,46 @@ class Enemy {
     context.fillStyle = 'red';
     context.fillRect(this.x, this.y, this.width, this.height);
   }
-}
+} */
+class Enemy {
+  public game: Game;
+  private x: number;
+  private speedX: number;
+  public markedForDeletion: boolean;
+  public width: number | undefined; // Puedes dejarlo así o usar el signo '?'
+  public height: number | undefined; // Puedes dejarlo así o usar el signo '?'
+  public y: number | undefined; // Puedes dejarlo así o usar el signo '?'
 
-class Angler1 {
+  constructor(game: Game) {
+    this.game = game;
+    this.x = this.game.width;
+    this.speedX = Math.random() * -1.5 - 0.5;
+    this.markedForDeletion = false;
+  }
+
+  public update(): void {
+    this.x += this.speedX;
+    // Asegúrate de que 'width' está definido antes de usarlo
+    if (this.width !== undefined && (this.x + this.width) < 0) {
+      this.markedForDeletion = true;
+    }
+  }
+
+  public draw(context: CanvasRenderingContext2D): void {
+    // Asegúrate de que 'width', 'height' y 'y' están definidos antes de usarlos
+    if (this.width !== undefined && this.height !== undefined && this.y !== undefined) {
+      context.fillStyle = 'red';
+      context.fillRect(this.x, this.y, this.width, this.height);
+    }
+  }
+}
+class Angler1 extends Enemy {
+  constructor(game: Game) {
+    super(game);
+    this.width = 228;
+    this.height = 169
+    this.y = Math.random() * (this.game.height * 0.9 - this.height);
+  }
 }
 
 class Angler2 {
@@ -286,7 +321,7 @@ export class game_udemy implements AfterViewInit {
   ngAfterViewInit(): void {
     const canvas = this.canvasRef.nativeElement;
     this.ctx = canvas.getContext('2d')!;
-    canvas.width = 800;
+    canvas.width = 600;
     canvas.height = 500;
     this.game = new Game(canvas.width, canvas.height);
     this.inputHandler = new InputHandler(this.game);
