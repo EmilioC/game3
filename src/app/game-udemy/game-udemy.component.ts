@@ -1,54 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-/* class InputHandler {
-  game: Game;
-  keydown: (event: KeyboardEvent) => void;
-  keyup: (event: KeyboardEvent) => void;
-
-  constructor(game: Game) {
-    this.game = game;
-    this.keydown = (event: KeyboardEvent) => {
-      if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && this.game.keys.indexOf(event.key) === -1) {
-        this.game.keys.push(event.key);
-        console.log(this.game.keys);
-      } else if (event.key === ' ') {
-        this.game.player.shootTop();
-      } else if (event.key === 'd') {
-        this.game.debug = !this.game.debug;
-      }
-    };
-
-    this.keyup = (event: KeyboardEvent) => {
-      const keyIndex = this.game.keys.indexOf(event.key);
-      if (keyIndex > -1) {
-        this.game.keys.splice(keyIndex, 1);
-      }
-    };
-    window.addEventListener('keydown', this.keydown);
-    window.addEventListener('keyup', this.keyup);
-  }
-
-  destroy() {
-    window.removeEventListener('keydown', this.keydown);
-    window.removeEventListener('keyup', this.keyup);
-  }
-  //Botones para móviles
-  moveUp() {
-    // Lógica para mover hacia arriba
-  }
-
-  moveDown() {
-    // Lógica para mover hacia abajo
-  }
-
-  shoot() {
-    // Lógica para disparar
-  }
-
-} */
-
-
 class InputHandler {
   game: Game;
   keydown: (event: KeyboardEvent) => void;
@@ -195,6 +147,7 @@ class Player {
     this.projectiles.forEach(projectile => {
       projectile.draw(context)
     })
+    /* context.restore(); */
   }
   shootTop() {
     if (this.game.ammo > 0) {
@@ -218,7 +171,10 @@ class Game {
   enemies: any[];
   enemyTimer: number;
   enemyInterval: number;
-  gameOver: boolean;  // Add this line to include debug property
+  gameOver: boolean;
+  public y?: number;
+  public x?: number;
+  score: number;  // Add this line to include debug property
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -235,6 +191,7 @@ class Game {
     this.enemyTimer = 0;
     this.enemyInterval = 1000;
     this.gameOver = false;
+    this.score = 0;
   }
   resize(newWidth: number, newHeight: number): void {
     this.width = newWidth;
@@ -251,6 +208,20 @@ class Game {
     }
     this.enemies.forEach(enemy => {
       enemy.update();
+      if (this.checkCollision(this.player, enemy)) {
+        enemy.markedForDeletion = true;
+      }
+      // Eliminación enemy por disparo
+      this.player.projectiles.forEach(projectile => {
+        if (this.checkCollision(projectile, enemy)) {
+          enemy.lives--;
+          projectile.markedForDeletion = true;
+          if (enemy.lives <= 0) {
+            enemy.markedForDeletion = true;
+            this.score += enemy.score;
+          }
+        }
+      })
     })
     this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
     if (this.enemyTimer > this.enemyInterval && !this.gameOver) {
@@ -270,6 +241,14 @@ class Game {
   addEnemy() {
     this.enemies.push(new Angler1(this));
   }
+
+  checkCollision(rect1: any, rect2: any) {
+    return (
+      rect1.x < rect2.x + rect2.width &&
+      rect1.x + rect1.width > rect2.x &&
+      rect1.y < rect2.y + rect2.height &&
+      rect1.height + rect1.y > rect2.y)
+  }
 }
 class Enemy {
   public game: Game;
@@ -280,7 +259,9 @@ class Enemy {
   public height?: number;// Puedes dejarlo así o usar el signo '?'
   public y?: number;
   gradientShift: number;
-  increasing: boolean;// Puedes dejarlo así o usar el signo '?'
+  increasing: boolean;
+  lives: number;
+  score: number;// Puedes dejarlo así o usar el signo '?'
 
   constructor(game: Game) {
     this.game = game;
@@ -289,6 +270,8 @@ class Enemy {
     this.markedForDeletion = false;
     this.gradientShift = 0;
     this.increasing = true;
+    this.lives = 5;
+    this.score = this.lives;
   }
 
   update(): void {
@@ -330,6 +313,8 @@ class Enemy {
       context.fillStyle = gradient;
       context.fillRect(this.x, this.y, this.width, this.height);
       context.fillRect(this.x, this.y, this.width, this.height);
+      context.fillText(this.lives.toString(), this.x, this.y);
+      context.font = '50px Arial';
     }
   }
 }
@@ -474,6 +459,7 @@ export class game_udemy implements AfterViewInit {
     this.game.draw(this.ctx);
 
     this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp));
+
   }
 
   /* VERSIÓN ANTERIOR AL AJUSTE DE PANTALLA
