@@ -61,12 +61,29 @@ canvas {
 .mobile-controls {
   position: absolute;
   bottom: 0;
-  /* Colocado en la parte inferior */
   left: 0;
   right: 0;
   padding: 10px;
-  /* Añade algo de padding */
+  margin: 0 5px;
+  /* Añade un pequeño margen entre botones */
+  height: 60px;
+  /* Altura predeterminada para orientación vertical */
+  padding: 10px 0;
+  /* Añade padding vertical para más altura */
+  font-size: 1.2em;
+  /* Tamaño del texto */
 }
+
+/* Media query para orientación horizontal (landscape) */
+@media screen and (orientation: landscape) {
+  .mobile-controls {
+    height: 45px;
+    /* Altura para orientación horizontal */
+  }
+}
+
+
+
 
 .mobile-controls button {
   flex: 1;
