@@ -115,8 +115,12 @@ class Player {
 
   }
   shootTop() {
-    this.projectiles.push(new Projectile(this.game, this.x, this.y));
-    console.log(this.projectiles);
+    if (this.game.ammo > 0) {
+      //this.x y this.y controlamos desde donde sale el disparo del objeto
+      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
+      this.game.ammo--;
+    }
+
   }
 
 }
@@ -126,18 +130,32 @@ class Game {
   height: number;
   player: Player;
   keys: string[];   // Add this line to include keys array
-  debug: boolean;   // Add this line to include debug property
+  debug: boolean;
+  ammo: number;
+  maxAmmo: number;
+  ammoTimer: number;
+  ammoInterval: number;   // Add this line to include debug property
 
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
     this.player = new Player(this);
     this.keys = []; // Initialize the keys array
-    this.debug = false; // Initialize the debug property
+    this.debug = false;
+    this.ammo = 200;
+    this.maxAmmo = 50;
+    this.ammoTimer = 0;
+    this.ammoInterval = 500; // Límite disparos
   }
 
   update() {
     this.player.update();
+    if (this.ammoTimer > this.ammoInterval) {
+      if (this.ammo < this.maxAmmo) this.ammo++;
+      this.ammoTimer = 0;
+    } else {
+
+    }
   }
   draw(context: any) {
     this.player.draw(context)
@@ -206,6 +224,7 @@ export class game_udemy implements AfterViewInit {
   private game!: Game;
   private animationFrameId!: number;
   private inputHandler!: InputHandler;
+
 
   ngAfterViewInit(): void {
     const canvas = this.canvasRef.nativeElement;
