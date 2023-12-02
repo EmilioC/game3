@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-class InputHandler {
+/* class InputHandler {
   game: Game;
   keydown: (event: KeyboardEvent) => void;
   keyup: (event: KeyboardEvent) => void;
@@ -25,6 +25,53 @@ class InputHandler {
         this.game.keys.splice(keyIndex, 1);
       }
     };
+    window.addEventListener('keydown', this.keydown);
+    window.addEventListener('keyup', this.keyup);
+  }
+
+  destroy() {
+    window.removeEventListener('keydown', this.keydown);
+    window.removeEventListener('keyup', this.keyup);
+  }
+  //Botones para móviles
+  moveUp() {
+    // Lógica para mover hacia arriba
+  }
+
+  moveDown() {
+    // Lógica para mover hacia abajo
+  }
+
+  shoot() {
+    // Lógica para disparar
+  }
+
+} */
+
+
+class InputHandler {
+  game: Game;
+  keydown: (event: KeyboardEvent) => void;
+  keyup: (event: KeyboardEvent) => void;
+
+  constructor(game: Game) {
+    this.game = game;
+    this.keydown = (event: KeyboardEvent) => {
+      if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && this.game.keys.indexOf(event.key) === -1) {
+        this.game.keys.push(event.key);
+      } else if (event.key === ' ') {
+        this.game.player.shootTop();
+      } else if (event.key === 'd') {
+        this.game.debug = !this.game.debug;
+      }
+    };
+
+    this.keyup = (event: KeyboardEvent) => {
+      const keyIndex = this.game.keys.indexOf(event.key);
+      if (keyIndex > -1) {
+        this.game.keys.splice(keyIndex, 1);
+      }
+    };
 
     window.addEventListener('keydown', this.keydown);
     window.addEventListener('keyup', this.keyup);
@@ -34,7 +81,43 @@ class InputHandler {
     window.removeEventListener('keydown', this.keydown);
     window.removeEventListener('keyup', this.keyup);
   }
+
+  // Métodos para botones móviles
+  moveUp() {
+    // Simula presionar la tecla 'ArrowUp'
+    if (this.game.keys.indexOf('ArrowUp') === -1) {
+      this.game.keys.push('ArrowUp');
+    }
+  }
+
+  moveDown() {
+    // Simula presionar la tecla 'ArrowDown'
+    if (this.game.keys.indexOf('ArrowDown') === -1) {
+      this.game.keys.push('ArrowDown');
+    }
+  }
+
+  shoot() {
+    // Simula presionar la tecla ' '
+    this.game.player.shootTop();
+  }
+
+  // Métodos para liberar los botones móviles
+  stopMoveUp() {
+    const keyIndex = this.game.keys.indexOf('ArrowUp');
+    if (keyIndex > -1) {
+      this.game.keys.splice(keyIndex, 1);
+    }
+  }
+
+  stopMoveDown() {
+    const keyIndex = this.game.keys.indexOf('ArrowDown');
+    if (keyIndex > -1) {
+      this.game.keys.splice(keyIndex, 1);
+    }
+  }
 }
+
 
 class SoundController {
 }
@@ -266,7 +349,6 @@ class UI {
     this.fontSize = 25;
     this.fontFamily = 'Helvetica';
     this.color = "yellow"
-
   }
   draw(context: any) {
     context.fillStyle = this.color;
@@ -303,21 +385,22 @@ export class game_udemy implements AfterViewInit {
   ngAfterViewInit(): void {
     const canvas = this.canvasRef.nativeElement;
     this.ctx = canvas.getContext('2d');
-
     // Ajustar el tamaño del canvas al tamaño de la ventana
     this.resizeCanvas(canvas);
-
     this.game = new Game(canvas.width, canvas.height);
     this.inputHandler = new InputHandler(this.game);
     this.startGame();
-
     // Manejar cambios de tamaño
     window.addEventListener('resize', () => this.resizeCanvas(canvas));
+    document.getElementById('moveUp')?.addEventListener('click', () => this.inputHandler.moveUp());
+    document.getElementById('moveDown')?.addEventListener('click', () => this.inputHandler.moveDown());
+    document.getElementById('shoot')?.addEventListener('click', () => this.inputHandler.shoot());
+
+
   }
   private resizeCanvas(canvas: HTMLCanvasElement): void {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
     if (this.game) {
       this.game.resize(canvas.width, canvas.height);
     }
@@ -349,15 +432,15 @@ export class game_udemy implements AfterViewInit {
     this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp));
   }
 
-
-  /*   private animate(timeStamp: number): void {
+  /* VERSIÓN ANTERIOR AL AJUSTE DE PANTALLA
+  private animate(timeStamp: number): void {
       const deltaTime = timeStamp - this.lastTime; // Calcular el timepo transcurrido desde la última frame
       this.lastTime = timeStamp; // Actualizar lastTime al timeStamp actual
-  
+
       this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height); // Limpiar el canvas
       this.game.update(deltaTime); // Pasar deltaTime al método update
       this.game.draw(this.ctx); // Dibujar el estado actualizado del juego
-  
+
       this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp)); // Pedir el siguiente frame
     } */
 

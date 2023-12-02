@@ -44,3 +44,33 @@ canvas {
 #razorfin {
   display: none;
 }
+
+.game-container {
+  position: relative;
+  width: 100%;
+  /* O un ancho específico si lo prefieres */
+  height: 100vh;
+  /* Altura que cubra toda la ventana */
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.mobile-controls {
+  position: absolute;
+  bottom: 0;
+  /* Colocado en la parte inferior */
+  left: 0;
+  right: 0;
+  padding: 10px;
+  /* Añade algo de padding */
+}
+
+.mobile-controls button {
+  flex: 1;
+  /* Cada botón ocupará un tercio del ancho */
+  margin: 0 5px;
+  /* Añade un pequeño margen entre botones */
+}

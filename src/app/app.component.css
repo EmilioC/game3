@@ -1,23 +1,19 @@
 /* En tu app.component.css */
-.game-container {
-  position: relative;
-  height: 100vh;
-  /* Asume que quieres que el contenedor del juego ocupe toda la altura de la pantalla */
-}
+/*  */
 
-app-game {
+/* app-game {
   width: 100%;
-  /* Asume que el componente del juego debe ocupar toda la anchura de su contenedor */
-  height: 90%;
-  /* Asume que el componente del juego debe ocupar el 90% de la altura de su contenedor */
-  /* Resto de tus estilos */
-}
 
-app-home {
+  height: 90%; */
+/* Asume que el componente del juego debe ocupar el 90% de la altura de su contenedor */
+/* Resto de tus estilos */
+
+
+/* app-home {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 10;
-}
+} */
