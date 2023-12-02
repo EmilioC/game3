@@ -102,18 +102,19 @@ class InputHandler {
     this.game.player.shootTop();
   }
 
-  // Métodos para liberar los botones móviles
+  // Método para simular soltar el botón de subir
   stopMoveUp() {
-    const keyIndex = this.game.keys.indexOf('ArrowUp');
-    if (keyIndex > -1) {
-      this.game.keys.splice(keyIndex, 1);
+    const index = this.game.keys.indexOf('ArrowUp');
+    if (index > -1) {
+      this.game.keys.splice(index, 1);
     }
   }
 
+  // Método para simular soltar el botón de bajar
   stopMoveDown() {
-    const keyIndex = this.game.keys.indexOf('ArrowDown');
-    if (keyIndex > -1) {
-      this.game.keys.splice(keyIndex, 1);
+    const index = this.game.keys.indexOf('ArrowDown');
+    if (index > -1) {
+      this.game.keys.splice(index, 1);
     }
   }
 }
@@ -392,8 +393,20 @@ export class game_udemy implements AfterViewInit {
     this.startGame();
     // Manejar cambios de tamaño
     window.addEventListener('resize', () => this.resizeCanvas(canvas));
-    document.getElementById('moveUp')?.addEventListener('click', () => this.inputHandler.moveUp());
-    document.getElementById('moveDown')?.addEventListener('click', () => this.inputHandler.moveDown());
+
+    // Botón Subir
+    const moveUpButton = document.getElementById('moveUp');
+    moveUpButton?.addEventListener('mousedown', () => this.inputHandler.moveUp());
+    moveUpButton?.addEventListener('mouseup', () => this.inputHandler.stopMoveUp());
+    moveUpButton?.addEventListener('touchstart', () => this.inputHandler.moveUp());
+    moveUpButton?.addEventListener('touchend', () => this.inputHandler.stopMoveUp());
+
+    // Botón Bajar
+    const moveDownButton = document.getElementById('moveDown');
+    moveDownButton?.addEventListener('mousedown', () => this.inputHandler.moveDown());
+    moveDownButton?.addEventListener('mouseup', () => this.inputHandler.stopMoveDown());
+    moveDownButton?.addEventListener('touchstart', () => this.inputHandler.moveDown());
+    moveDownButton?.addEventListener('touchend', () => this.inputHandler.stopMoveDown());
     document.getElementById('shoot')?.addEventListener('click', () => this.inputHandler.shoot());
 
 
