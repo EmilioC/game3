@@ -10,3 +10,38 @@
   touch-action: manipulation;
   /* Optimiza los eventos táctiles */
 }
+
+@keyframes pulseLight {
+
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+
+  50% {
+    filter: brightness(1.5);
+  }
+}
+
+@keyframes galaxySpin {
+  0% {
+    background: linear-gradient(45deg, blue, purple, red);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    background: linear-gradient(45deg, red, blue, purple);
+    transform: rotate(360deg);
+  }
+}
+
+.angler1 {
+  width: 100px;
+  /* Ajusta el tamaño según sea necesario */
+  height: 100px;
+  /* Ajusta el tamaño según sea necesario */
+  animation: pulseLight 2s infinite, galaxySpin 10s linear infinite;
+  background-size: 200% 200%;
+  border-radius: 50%;
+  /* Opcional para hacerlo más redondo */
+}
