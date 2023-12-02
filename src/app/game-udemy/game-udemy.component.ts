@@ -86,7 +86,6 @@ class Player {
   ui: UI;
 
   constructor(game: Game) {
-
     this.game = game;
     this.width = 120;
     this.height = 190;
@@ -96,8 +95,6 @@ class Player {
     this.maxSpeed = 8;
     this.projectiles = [];
     this.ui = new UI(this.game);
-
-
   }
   update() {
     if (this.game.keys.includes('ArrowUp')) this.speedY = -this.maxSpeed;
@@ -116,7 +113,6 @@ class Player {
     this.projectiles.forEach(projectile => {
       projectile.draw(context)
     })
-
   }
   shootTop() {
     if (this.game.ammo > 0) {
@@ -124,11 +120,8 @@ class Player {
       this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
       this.game.ammo--;
     }
-
   }
-
 }
-
 class Game {
   width: number;
   height: number;
@@ -139,7 +132,11 @@ class Game {
   maxAmmo: number;
   ammoTimer: number;
   ammoInterval: number;
-  ui: UI;   // Add this line to include debug property
+  ui: UI;
+  enemies: any[];
+  enemyTimer: number;
+  enemyInterval: number;
+  gameOver: boolean;  // Add this line to include debug property
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -152,6 +149,10 @@ class Game {
     this.ammoTimer = 0;
     this.ammoInterval = 500; // Límite disparos
     this.ui = new UI(this);
+    this.enemies = [];
+    this.enemyTimer = 0;
+    this.enemyInterval = 1000;
+    this.gameOver = false;
   }
 
   update(deltaTime: number) {
@@ -161,53 +162,37 @@ class Game {
       this.ammoTimer = 0;
     } else {
       this.ammoTimer += deltaTime;
-
+    }
+    this.enemies.forEach(enemy => {
+      enemy.update();
+    })
+    this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
+    if (this.enemyTimer > this.enemyInterval && !this.gameOver) {
+      this.addEnemy();
+      this.enemyTimer = 0;
+    } else {
+      this.enemyTimer += deltaTime;
     }
   }
   draw(context: any) {
     this.player.draw(context);
     this.ui.draw(context);
+    this.enemies.forEach(enemy => {
+      enemy.draw(context);
+    });
+  }
+  addEnemy() {
+    this.enemies.push(new Angler1(this));
   }
 }
-
-/* class Enemy {
-  game: Game;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  speedX: number;
-  markedForDeletion: boolean;
-  //REVISAR porque en el video nos los añade en la clase.
-  constructor(game: Game) {
-    this.game = game;
-    this.x = this.game.width;
-    this.y = 5
-    // Revisar  this.width y this.height
-    this.width = this.game.width;
-    this.height = this.game.height;
-    this.speedX = Math.random() * -1.5 - 0.5;
-    this.markedForDeletion = false;
-  }
-
-  update() {
-    this.x += this.speedX;
-    if (this.x + this.game.width < 0) this.markedForDeletion = true;
-  }
-
-  draw(context: any) {
-    context.fillStyle = 'red';
-    context.fillRect(this.x, this.y, this.width, this.height);
-  }
-} */
 class Enemy {
   public game: Game;
   private x: number;
   private speedX: number;
   public markedForDeletion: boolean;
-  public width: number | undefined; // Puedes dejarlo así o usar el signo '?'
-  public height: number | undefined; // Puedes dejarlo así o usar el signo '?'
-  public y: number | undefined; // Puedes dejarlo así o usar el signo '?'
+  public width?: number; // Puedes dejarlo así o usar el signo '?'
+  public height?: number;// Puedes dejarlo así o usar el signo '?'
+  public y?: number; // Puedes dejarlo así o usar el signo '?'
 
   constructor(game: Game) {
     this.game = game;
@@ -216,15 +201,14 @@ class Enemy {
     this.markedForDeletion = false;
   }
 
-  public update(): void {
+  update(): void {
     this.x += this.speedX;
     // Asegúrate de que 'width' está definido antes de usarlo
     if (this.width !== undefined && (this.x + this.width) < 0) {
       this.markedForDeletion = true;
     }
   }
-
-  public draw(context: CanvasRenderingContext2D): void {
+  draw(context: CanvasRenderingContext2D): void {
     // Asegúrate de que 'width', 'height' y 'y' están definidos antes de usarlos
     if (this.width !== undefined && this.height !== undefined && this.y !== undefined) {
       context.fillStyle = 'red';
@@ -235,42 +219,32 @@ class Enemy {
 class Angler1 extends Enemy {
   constructor(game: Game) {
     super(game);
-    this.width = 228;
-    this.height = 169
+    this.width = 228 * 0.2;
+    this.height = 169 * 0.2;
+    //Posición en pantalla
     this.y = Math.random() * (this.game.height * 0.9 - this.height);
   }
 }
-
 class Angler2 {
 }
-
 class LuckyFish {
 }
-
 class HiveWhale {
 }
-
 class Drone {
 }
-
 class BulbWhale {
 }
-
 class MoonFish {
 }
-
 class Stalker {
 }
-
 class Razorfin {
 }
-
 class Layer {
 }
-
 class Background {
 }
-
 class Explosion {
 }
 
@@ -300,8 +274,6 @@ class UI {
     }
   }
 }
-
-
 @Component({
   selector: 'app-game-udemy',
   standalone: true,
