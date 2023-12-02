@@ -1,6 +1,5 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { withDebugTracing } from '@angular/router';
 
 class InputHandler {
   game: Game;
@@ -70,7 +69,6 @@ class Projectile {
     context.fillRect(this.x, this.y, this.width, this.height);
   }
 }
-
 class Particle {
 }
 
@@ -153,6 +151,10 @@ class Game {
     this.enemyTimer = 0;
     this.enemyInterval = 1000;
     this.gameOver = false;
+  }
+  resize(newWidth: number, newHeight: number): void {
+    this.width = newWidth;
+    this.height = newHeight;
   }
 
   update(deltaTime: number) {
@@ -283,22 +285,44 @@ class UI {
 })
 export class game_udemy implements AfterViewInit {
   @ViewChild('canvas1') canvasRef!: ElementRef<HTMLCanvasElement>;
-  private ctx!: CanvasRenderingContext2D;
+  private ctx: CanvasRenderingContext2D | null = null;
   private game!: Game;
   private animationFrameId!: number;
   private inputHandler!: InputHandler;
   private lastTime: number = 0;
 
-
+  /*   ngAfterViewInit(): void {
+      const canvas = this.canvasRef.nativeElement;
+      this.ctx = canvas.getContext('2d')!;
+      canvas.width = 600;
+      canvas.height = 500;
+      this.game = new Game(canvas.width, canvas.height);
+      this.inputHandler = new InputHandler(this.game);
+      this.startGame();
+    } */
   ngAfterViewInit(): void {
     const canvas = this.canvasRef.nativeElement;
-    this.ctx = canvas.getContext('2d')!;
-    canvas.width = 600;
-    canvas.height = 500;
+    this.ctx = canvas.getContext('2d');
+
+    // Ajustar el tamaño del canvas al tamaño de la ventana
+    this.resizeCanvas(canvas);
+
     this.game = new Game(canvas.width, canvas.height);
     this.inputHandler = new InputHandler(this.game);
     this.startGame();
+
+    // Manejar cambios de tamaño
+    window.addEventListener('resize', () => this.resizeCanvas(canvas));
   }
+  private resizeCanvas(canvas: HTMLCanvasElement): void {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    if (this.game) {
+      this.game.resize(canvas.width, canvas.height);
+    }
+  }
+
   OnDestroy(): void {
     // You should remove event listeners when the component is destroyed
     window.removeEventListener('keydown', this.inputHandler.keydown);
@@ -310,15 +334,32 @@ export class game_udemy implements AfterViewInit {
   }
 
   private animate(timeStamp: number): void {
-    const deltaTime = timeStamp - this.lastTime; // Calcular el timepo transcurrido desde la última frame
-    this.lastTime = timeStamp; // Actualizar lastTime al timeStamp actual
+    if (!this.ctx || !this.canvasRef.nativeElement) {
+      // Manejar el caso en que ctx o canvasRef.nativeElement sean null
+      return;
+    }
 
-    this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height); // Limpiar el canvas
-    this.game.update(deltaTime); // Pasar deltaTime al método update
-    this.game.draw(this.ctx); // Dibujar el estado actualizado del juego
+    const deltaTime = timeStamp - this.lastTime;
+    this.lastTime = timeStamp;
 
-    this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp)); // Pedir el siguiente frame
+    this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
+    this.game.update(deltaTime);
+    this.game.draw(this.ctx);
+
+    this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp));
   }
+
+
+  /*   private animate(timeStamp: number): void {
+      const deltaTime = timeStamp - this.lastTime; // Calcular el timepo transcurrido desde la última frame
+      this.lastTime = timeStamp; // Actualizar lastTime al timeStamp actual
+  
+      this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height); // Limpiar el canvas
+      this.game.update(deltaTime); // Pasar deltaTime al método update
+      this.game.draw(this.ctx); // Dibujar el estado actualizado del juego
+  
+      this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp)); // Pedir el siguiente frame
+    } */
 
   ngOnDestroy(): void {
     if (this.animationFrameId) {
