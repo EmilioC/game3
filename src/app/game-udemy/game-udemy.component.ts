@@ -82,6 +82,7 @@ class Player {
   speedY: number;
   maxSpeed: number;
   projectiles: Projectile[];
+  ui: UI;
 
   constructor(game: Game) {
 
@@ -93,6 +94,8 @@ class Player {
     this.speedY = 0;
     this.maxSpeed = 8;
     this.projectiles = [];
+    this.ui = new UI(this.game);
+
 
   }
   update() {
@@ -134,7 +137,8 @@ class Game {
   ammo: number;
   maxAmmo: number;
   ammoTimer: number;
-  ammoInterval: number;   // Add this line to include debug property
+  ammoInterval: number;
+  ui: UI;   // Add this line to include debug property
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -142,27 +146,61 @@ class Game {
     this.player = new Player(this);
     this.keys = []; // Initialize the keys array
     this.debug = false;
-    this.ammo = 200;
+    this.ammo = 30;
     this.maxAmmo = 50;
     this.ammoTimer = 0;
     this.ammoInterval = 500; // Límite disparos
+    this.ui = new UI(this);
   }
 
-  update() {
+  update(deltaTime: number) {
     this.player.update();
     if (this.ammoTimer > this.ammoInterval) {
       if (this.ammo < this.maxAmmo) this.ammo++;
       this.ammoTimer = 0;
     } else {
+      this.ammoTimer += deltaTime;
 
     }
   }
   draw(context: any) {
-    this.player.draw(context)
+    this.player.draw(context);
+    this.ui.draw(context);
   }
 }
 
 class Enemy {
+
+  game: Game;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  speedX: number;
+  markedForDeletion: boolean;
+  //REVISAR porque en el video nos los añade en la clase.
+
+  constructor(game: Game) {
+    this.game = game;
+    this.x = 4;
+    this.y = 5
+    // Revisar  this.width y this.height
+    this.width = this.game.width;
+    this.height = this.game.height;
+    this.speedX = Math.random() * -1.5 - 0.5;
+    this.markedForDeletion = false;
+
+  }
+
+  update() {
+    this.x += this.speedX;
+    if (this.x + this.game.width < 0) this.markedForDeletion = true;
+  }
+
+  draw(context: any) {
+    context.fillStyle = 'red';
+    context.fillRect(this.x, this.y, this.width, this.height);
+  }
 }
 
 class Angler1 {
@@ -208,6 +246,24 @@ class FireExplosion {
 }
 
 class UI {
+  game: Game;
+  fontSize: number;
+  fontFamily: string;
+  color: string;
+  constructor(game: Game) {
+    this.game = game;
+    this.fontSize = 25;
+    this.fontFamily = 'Helvetica';
+    this.color = "yellow"
+
+  }
+  draw(context: any) {
+    context.fillStyle = this.color;
+    for (let i = 0; i < this.game.ammo; i++) {
+      //descuenta los tiros y va añadiendo en función del tiempo
+      context.fillRect(20 + 5 * i, 50, 3, 20)
+    }
+  }
 }
 
 
@@ -224,6 +280,7 @@ export class game_udemy implements AfterViewInit {
   private game!: Game;
   private animationFrameId!: number;
   private inputHandler!: InputHandler;
+  private lastTime: number = 0;
 
 
   ngAfterViewInit(): void {
@@ -242,19 +299,18 @@ export class game_udemy implements AfterViewInit {
   }
 
   private startGame(): void {
-    this.animate();
+    this.animate(0);
   }
 
-  private animate(): void {
-    // Limpia el canvas antes de cada actualización/redibujo
-    this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
+  private animate(timeStamp: number): void {
+    const deltaTime = timeStamp - this.lastTime; // Calcular el timepo transcurrido desde la última frame
+    this.lastTime = timeStamp; // Actualizar lastTime al timeStamp actual
 
-    // Actualiza y redibuja los elementos del juego
-    this.game.update();
-    this.game.draw(this.ctx);
+    this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height); // Limpiar el canvas
+    this.game.update(deltaTime); // Pasar deltaTime al método update
+    this.game.draw(this.ctx); // Dibujar el estado actualizado del juego
 
-    // Llama a animate() recursivamente para el próximo frame
-    this.animationFrameId = requestAnimationFrame(() => this.animate());
+    this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp)); // Pedir el siguiente frame
   }
 
   ngOnDestroy(): void {
