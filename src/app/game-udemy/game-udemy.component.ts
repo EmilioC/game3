@@ -121,8 +121,8 @@ class Player {
 
   constructor(game: Game) {
     this.game = game;
-    this.width = 120;
-    this.height = 190;
+    this.width = 50;
+    this.height = 50;
     this.x = 20;
     this.y = 100;
     this.speedY = 0;
@@ -152,7 +152,7 @@ class Player {
   shootTop() {
     if (this.game.ammo > 0) {
       //this.x y this.y controlamos desde donde sale el disparo desde el objeto
-      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
+      this.projectiles.push(new Projectile(this.game, this.x + 1, this.y + 1));
       this.game.ammo--;
     }
   }
@@ -174,7 +174,8 @@ class Game {
   gameOver: boolean;
   public y?: number;
   public x?: number;
-  score: number;  // Add this line to include debug property
+  score: number;
+  winningScore: number;  // Add this line to include debug property
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -192,6 +193,7 @@ class Game {
     this.enemyInterval = 1000;
     this.gameOver = false;
     this.score = 0;
+    this.winningScore = 10;
   }
   resize(newWidth: number, newHeight: number): void {
     this.width = newWidth;
@@ -219,6 +221,7 @@ class Game {
           if (enemy.lives <= 0) {
             enemy.markedForDeletion = true;
             this.score += enemy.score;
+            if (this.score > this.winningScore) this.gameOver = true;
           }
         }
       })
@@ -365,14 +368,23 @@ class UI {
     this.game = game;
     this.fontSize = 25;
     this.fontFamily = 'Helvetica';
-    this.color = "yellow"
+    this.color = "white"
   }
   draw(context: any) {
+    context.save();
     context.fillStyle = this.color;
+    context.shadowOffsetX = 2;
+    context.shadowOffsetY = 2;
+    context.shadowColor = 'black';
+    context.font = this.fontSize + 'px ' + this.fontFamily;
+    //score
+    context.fillText('Puntazos: ' + this.game.score, 20, 40);
+
     for (let i = 0; i < this.game.ammo; i++) {
       //descuenta los tiros y va añadiendo en función del tiempo
       context.fillRect(20 + 5 * i, 50, 3, 20)
     }
+    context.restore();
   }
 }
 @Component({

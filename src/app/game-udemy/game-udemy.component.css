@@ -83,3 +83,29 @@ canvas {
     /* Ajusta si es necesario para los botones en landscape */
   }
 }
+
+.btn-outline-warning:hover,
+.btn-outline-warning:focus,
+.btn-outline-warning:active,
+.btn-outline-warning.active,
+.show>.btn-outline-warning.dropdown-toggle {
+  color: #ffc107;
+  /* El color del texto original del botón */
+  background-color: transparent;
+  /* Fondo transparente */
+  border-color: #ffc107;
+  /* El color del borde original del botón */
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus,
+.btn-outline-danger:active,
+.btn-outline-danger.active,
+.show>.btn-outline-danger.dropdown-toggle {
+  color: #dc3545;
+  /* El color del texto original del botón */
+  background-color: transparent;
+  /* Fondo transparente */
+  border-color: #dc3545;
+  /* El color del borde original del botón */
+}
