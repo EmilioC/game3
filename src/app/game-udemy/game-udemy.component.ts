@@ -383,7 +383,6 @@ class Layer {
     else this.x -= this.game.speed * this.speedModifier;
   }
   draw(context: any) {
-
     context.drawImage(this.image, this.x, this.y);
     context.drawImage(this.image, this.x + this.width, this.y);
   }
@@ -392,15 +391,25 @@ class Layer {
 class Background {
   game: Game;
   image1: HTMLElement;
+  image2: HTMLElement;
+  image3: HTMLElement;
+  image4: HTMLElement;
   layer1: Layer;
+  layer2: Layer;
+  layer3: Layer;
+  layer4: Layer;
   layers: Layer[];
   constructor(game: Game) {
     this.game = game;
     this.image1 = document.getElementById('layer1')!;
+    this.image2 = document.getElementById('layer2')!;
+    this.image3 = document.getElementById('layer3')!;
+    this.image4 = document.getElementById('layer4')!;
     this.layer1 = new Layer(this.game, this.image1, 1);
-    this.layers = [this.layer1];
-
-
+    this.layer2 = new Layer(this.game, this.image2, 2);
+    this.layer3 = new Layer(this.game, this.image3, 1.6);
+    this.layer4 = new Layer(this.game, this.image4, 1.8);
+    this.layers = [this.layer1, this.layer2];
   }
   update() {
     this.layers.forEach(layer => layer.update());
