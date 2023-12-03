@@ -39,41 +39,47 @@ canvas {
   left: 0;
   right: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 15px 30px;
+  justify-content: space-between;
+  /* Separa los botones a cada lado */
+  padding: 10px;
+  z-index: 10;
+  /* Asegura que los controles se muestren sobre el canvas */
+}
+
+/* Botón moveUp y moveDown, uno encima del otro */
+.mobile-controls .btn {
+  margin: 5px;
+  /* Espacio alrededor de los botones */
+  padding: 15px 20px;
+  /* Relleno para aumentar el tamaño */
   font-size: 1.8em;
-  margin: 0 5px;
-  height: auto;
-  /* Modificado para ajustar automáticamente la altura */
-  font-size: 1.2em;
+  /* Tamaño de fuente para aumentar la legibilidad */
 }
 
-.mobile-controls button {
-  flex: 1;
-  margin-bottom: 5px;
-  /* Añade un pequeño margen entre botones */
+/* Contenedor para los botones moveUp y moveDown */
+.mobile-controls .vertical-buttons {
+  display: flex;
+  flex-direction: column;
+  /* Los apila verticalmente */
 }
 
-#shoot {
-  align-self: flex-end;
-  /* Alinear a la derecha */
-  order: 3;
-  /* Se muestra al final */
-  margin-left: auto;
-  /* Empuja el botón a la derecha */
-  margin-bottom: 0;
-  /* No necesita margen inferior */
-}
-
-/* Ajustes para la orientación horizontal */
 @media screen and (orientation: landscape) {
-  .mobile-controls {
-    flex-direction: row;
-    /* Botones en fila para orientación horizontal */
-    justify-content: space-between;
-    /* Distribuye los botones uniformemente */
-    height: 80px;
-    /* Altura ajustada para orientación horizontal */
+  #canvas1 {
+    height: 90%;
+    /* Ajusta si es necesario para dejar espacio a los botones */
+  }
+
+  .mobile-controls .vertical-buttons {
+    bottom: 10px;
+    /* Ajusta si es necesario para los botones en landscape */
+    left: 10px;
+    /* Ajusta si es necesario para los botones en landscape */
+  }
+
+  #shoot {
+    bottom: 10px;
+    /* Ajusta si es necesario para los botones en landscape */
+    right: 10px;
+    /* Ajusta si es necesario para los botones en landscape */
   }
 }
