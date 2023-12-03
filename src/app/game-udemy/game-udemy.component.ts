@@ -193,7 +193,7 @@ class Game {
     this.enemyInterval = 1000;
     this.gameOver = false;
     this.score = 0;
-    this.winningScore = 10;
+    this.winningScore = 100;
   }
   resize(newWidth: number, newHeight: number): void {
     this.width = newWidth;
