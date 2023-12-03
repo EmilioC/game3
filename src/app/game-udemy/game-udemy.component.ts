@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Images } from '../gif/interfaces/gifs.interfaces';
 
 class InputHandler {
   game: Game;
@@ -160,6 +161,7 @@ class Player {
 class Game {
   width: number;
   height: number;
+  background: Background;
   player: Player;
   keys: string[];   // Add this line to include keys array
   debug: boolean;
@@ -175,11 +177,15 @@ class Game {
   public y?: number;
   public x?: number;
   score: number;
-  winningScore: number;  // Add this line to include debug property
-
+  winningScore: number;
+  gameTime: number;
+  timeLimit: number;
+  speed: number;
+  layer1: HTMLImageElement;
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
+    this.background = new Background(this);
     this.player = new Player(this);
     this.keys = []; // Initialize the keys array
     this.debug = false;
@@ -193,7 +199,11 @@ class Game {
     this.enemyInterval = 1000;
     this.gameOver = false;
     this.score = 0;
-    this.winningScore = 100;
+    this.winningScore = 5;
+    this.gameTime = 0;
+    this.timeLimit = 50000;
+    this.speed = 1;
+    this.layer1 = undefined!;
   }
   resize(newWidth: number, newHeight: number): void {
     this.width = newWidth;
@@ -201,6 +211,9 @@ class Game {
   }
 
   update(deltaTime: number) {
+    if (!this.gameOver) this.gameTime += deltaTime;
+    if (this.gameTime > this.timeLimit) this.gameOver = true;
+    this.background.update();
     this.player.update();
     if (this.ammoTimer > this.ammoInterval) {
       if (this.ammo < this.maxAmmo) this.ammo++;
@@ -220,7 +233,7 @@ class Game {
           projectile.markedForDeletion = true;
           if (enemy.lives <= 0) {
             enemy.markedForDeletion = true;
-            this.score += enemy.score;
+            if (!this.gameOver) this.score += enemy.score;
             if (this.score > this.winningScore) this.gameOver = true;
           }
         }
@@ -235,6 +248,8 @@ class Game {
     }
   }
   draw(context: any) {
+
+    this.background.draw(context);
     this.player.draw(context);
     this.ui.draw(context);
     this.enemies.forEach(enemy => {
@@ -347,8 +362,52 @@ class Stalker {
 class Razorfin {
 }
 class Layer {
+  game: Game;
+  image: HTMLElement;
+  speedModifier: number;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  constructor(game: Game, image: HTMLElement, speedModifier: number) {
+    this.game = game;
+    this.image = image;
+    this.speedModifier = speedModifier;
+    this.width = 1768;
+    this.height = 500;
+    this.x = 0;
+    this.y = 0;
+  }
+  update() {
+    if (this.x <= -this.width) this.x = 0;
+    else this.x -= this.game.speed * this.speedModifier;
+  }
+  draw(context: any) {
+
+    context.drawImage(this.image, this.x, this.y);
+    context.drawImage(this.image, this.x + this.width, this.y);
+  }
 }
+
 class Background {
+  game: Game;
+  image1: HTMLElement;
+  layer1: Layer;
+  layers: Layer[];
+  constructor(game: Game) {
+    this.game = game;
+    this.image1 = document.getElementById('layer1')!;
+    this.layer1 = new Layer(this.game, this.image1, 1);
+    this.layers = [this.layer1];
+
+
+  }
+  update() {
+    this.layers.forEach(layer => layer.update());
+  }
+  draw(context: any) {
+    this.layers.forEach(layer => layer.draw(context));
+  }
 }
 class Explosion {
 }
@@ -379,10 +438,30 @@ class UI {
     context.font = this.fontSize + 'px ' + this.fontFamily;
     //score
     context.fillText('Puntazos: ' + this.game.score, 20, 40);
-
+    //amo
     for (let i = 0; i < this.game.ammo; i++) {
       //descuenta los tiros y va añadiendo en función del tiempo
-      context.fillRect(20 + 5 * i, 50, 3, 20)
+      context.fillRect(20 + 5 * i, 50, 3, 20);
+    }
+    //Timer
+    const formattedTime = (this.game.gameTime * 0.001).toFixed(1);
+    context.fillText('Tiempo: ' + formattedTime, 20, 100);
+    //Game over messages
+    if (this.game.gameOver) {
+      context.textAlign = 'center';
+      let message1;
+      let message2;
+      if (this.game.score > this.game.winningScore) {
+        message1 = 'Coñis has ganado!';
+        message2 = 'jaja Bene Bene!';
+      } else {
+        message1 = 'La cagaste burt lancaster!';
+        message2 = '¿La refinitiva?';
+      }
+      context.font = '50px ' + this.fontFamily;
+      context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 20);
+      context.font = '2 5px ' + this.fontFamily;
+      context.fillText(message2, this.game.width * 0.5, this.game.height * 0.5 + 20);
     }
     context.restore();
   }
@@ -411,6 +490,9 @@ export class game_udemy implements AfterViewInit {
       this.inputHandler = new InputHandler(this.game);
       this.startGame();
     } */
+
+
+
   ngAfterViewInit(): void {
     const canvas = this.canvasRef.nativeElement;
     this.ctx = canvas.getContext('2d');
@@ -436,7 +518,6 @@ export class game_udemy implements AfterViewInit {
     moveDownButton?.addEventListener('touchstart', () => this.inputHandler.moveDown());
     moveDownButton?.addEventListener('touchend', () => this.inputHandler.stopMoveDown());
     document.getElementById('shoot')?.addEventListener('click', () => this.inputHandler.shoot());
-
 
   }
   private resizeCanvas(canvas: HTMLCanvasElement): void {

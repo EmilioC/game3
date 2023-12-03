@@ -69,16 +69,12 @@ export class GameComponent implements OnInit {
     this.gameOver = false;
     this.score = 0;
     this.notifyParent()
-
   }
-
   // ===== Añadir gravedad ====
   addGravity() {
     let gravity = 4.5;
     if (this.gameStarted) this.bird_position += gravity;
-
   }
-
   // ===== Saltar ====
   jump() {
 
@@ -87,7 +83,6 @@ export class GameComponent implements OnInit {
       else this.bird_position -= 90;
     };
   }
-
   // ===== Mover obstáculos hacia adelante ====
   // DO: Pendiente revisar velocidad en escritorio es igual a móvil
   moveObstacle() {
@@ -124,17 +119,13 @@ export class GameComponent implements OnInit {
     if (this.obstacle_position >= this.obstacle_width
       && this.obstacle_position <= this.obstacle_width + 80
       && (top_obstacle_collision || bottom_obstacle_collision)) { this.setGameOver() }
-
   }
-
-
   // ===== Resetear la posición del obstáculo ====
   resetObstaclePosition() {
     this.obstacle_position = this.container_width;
     //Dar altura aleatoria a cada obstáculo
     this.obstacle_height = Math.floor(Math.random() * (this.container_height - this.obstacle_gap));
   }
-
   playMusic() {
     this.musicActive = !this.musicActive;
 

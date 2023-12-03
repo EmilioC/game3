@@ -109,3 +109,26 @@ canvas {
   border-color: #dc3545;
   /* El color del borde original del botón */
 }
+
+#layer1,
+#layer2,
+#layer3,
+#layer4,
+#player,
+#angler1,
+#angler2,
+#lucky,
+#projectile,
+#gears,
+#hivewhale,
+#drone,
+#smokeExplosion,
+#fireExplosion,
+#bulbwhale,
+#moonfish,
+#shield,
+#fireball,
+#stalker,
+#razorfin {
+  display: none;
+}
