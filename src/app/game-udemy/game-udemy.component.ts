@@ -115,21 +115,30 @@ class Player {
   height: number;
   x: number;
   y: number;
+  frameX: number;
+  frameY: number;
+  maxFrame: number;
   speedY: number;
   maxSpeed: number;
   projectiles: Projectile[];
   ui: UI;
+  image: HTMLElement;
 
   constructor(game: Game) {
     this.game = game;
-    this.width = 50;
-    this.height = 50;
+    this.width = 120;
+    this.height = 190;
     this.x = 20;
     this.y = 100;
+    this.frameX = 0;
+    this.frameY = 0;
+    this.maxFrame = 37;
     this.speedY = 0;
-    this.maxSpeed = 8;
+    this.maxSpeed = 3;
     this.projectiles = [];
     this.ui = new UI(this.game);
+    this.image = document.getElementById('player')!;
+
   }
   update() {
     if (this.game.keys.includes('ArrowUp')) this.speedY = -this.maxSpeed;
@@ -141,10 +150,16 @@ class Player {
       projectile.update();
     })
     this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
+    //sprite
+    if (this.frameX < this.maxFrame) {
+      this.frameX++;
+    } else {
+      this.frameX = 0;
+    }
   }
   draw(context: any) {
-    context.fillStyle = 'green  ';
-    context.fillRect(this.x, this.y, this.width, this.height);
+    if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
+    context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
     this.projectiles.forEach(projectile => {
       projectile.draw(context)
     })
@@ -153,7 +168,7 @@ class Player {
   shootTop() {
     if (this.game.ammo > 0) {
       //this.x y this.y controlamos desde donde sale el disparo desde el objeto
-      this.projectiles.push(new Projectile(this.game, this.x + 1, this.y + 1));
+      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
       this.game.ammo--;
     }
   }
@@ -188,7 +203,7 @@ class Game {
     this.background = new Background(this);
     this.player = new Player(this);
     this.keys = []; // Initialize the keys array
-    this.debug = false;
+    this.debug = true;
     this.ammo = 30;
     this.maxAmmo = 50;
     this.ammoTimer = 0;
@@ -204,6 +219,7 @@ class Game {
     this.timeLimit = 50000;
     this.speed = 1;
     this.layer1 = undefined!;
+
   }
   resize(newWidth: number, newHeight: number): void {
     this.width = newWidth;
