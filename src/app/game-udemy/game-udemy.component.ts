@@ -353,10 +353,14 @@ class Enemy {
   }
 }
 class Angler1 extends Enemy {
+  image: HTMLElement;
+  frameY: number;
   constructor(game: Game) {
     super(game);
     this.width = 228 * 0.2;
     this.height = 169 * 0.2;
+    this.image = document.getElementById('angler1')!;
+    this.frameY = Math.floor(Math.random() * 3);
     //Posición en pantalla
     this.y = Math.random() * (this.game.height * 0.9 - this.height);
   }
