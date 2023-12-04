@@ -273,7 +273,10 @@ class Game {
     });
   }
   addEnemy() {
-    this.enemies.push(new Angler1(this));
+    const randomize = Math.random();
+    if (randomize < 0.5) this.enemies.push(new Angler1(this));
+    else if (randomize < 0.5) this.enemies.push(new Angler2(this));
+    else this.enemies.push(new LuckyFish(this));
   }
 
   checkCollision(rect1: any, rect2: any) {
@@ -289,13 +292,17 @@ class Enemy {
   x: number;
   speedX: number;
   markedForDeletion: boolean;
-  width: number; // Puedes dejarlo así o usar el signo '?'
-  height: number;// Puedes dejarlo así o usar el signo '?'
+  width: number;
+  height: number;
   y: number;
   gradientShift: number;
   increasing: boolean;
   lives: number;
-  score: number;// Puedes dejarlo así o usar el signo '?'
+  score: number;
+  frameX: number;
+  frameY: number;
+  maxFrame: number;
+  image: HTMLElement | null = null;
 
   constructor(game: Game) {
     this.game = game;
@@ -309,19 +316,22 @@ class Enemy {
     this.y = 0;
     this.width = 0;
     this.height = 0;
-  }
+    this.frameX = 0;
+    this.frameY = 0;
+    this.maxFrame = 37;
+    this.image = document.getElementById('player') as HTMLImageElement;
 
+  }
   update(): void {
     this.x += this.speedX;
     if (this.width !== undefined && (this.x + this.width) < 0) {
       this.markedForDeletion = true;
     }
   }
-  draw(context: CanvasRenderingContext2D): void {
+  draw(context: any): void {
+    if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
+    context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
 
-    // Cambia el estilo de relleno a un color sólido, por ejemplo, 'red'
-    context.fillStyle = 'red';
-    context.fillRect(this.x, this.y, this.width, this.height);
 
     // Dibuja la vida del enemigo
     context.font = '50px Arial';
@@ -330,21 +340,43 @@ class Enemy {
   }
 }
 class Angler1 extends Enemy {
-  image: HTMLElement;
-  frameY: number;
   constructor(game: Game) {
     super(game);
-    this.width = 228 * 0.2;
-    this.height = 169 * 0.2;
+    this.width = 228;
+    this.height = 169;
+    //Posición en pantalla
+    this.y = Math.random() * (this.game.height * 0.9 - this.height);
     this.image = document.getElementById('angler1')!;
+    this.frameY = Math.floor(Math.random() * 3);
+    this.lives = 3;
+    this.score = this.lives;
+  }
+}
+class Angler2 extends Enemy {
+  type: String;
+  constructor(game: Game) {
+    super(game);
+    this.width = 228;
+    this.height = 169;
+    this.image = document.getElementById('angler2')!;
+    this.frameY = Math.floor(Math.random() * 3);
+    //Posición en pantalla
+    this.y = Math.random() * (this.game.height * 0.9 - this.height);
+    this.lives = 3;
+    this.score = 15;
+    this.type = 'lucky';
+  }
+}
+class LuckyFish extends Enemy {
+  constructor(game: Game) {
+    super(game);
+    this.width = 99;
+    this.height = 95;
+    this.image = document.getElementById('lucky')!;
     this.frameY = Math.floor(Math.random() * 3);
     //Posición en pantalla
     this.y = Math.random() * (this.game.height * 0.9 - this.height);
   }
-}
-class Angler2 {
-}
-class LuckyFish {
 }
 class HiveWhale {
 }
@@ -578,7 +610,6 @@ export class game_udemy implements AfterViewInit {
       cancelAnimationFrame(this.animationFrameId);
     }
   }
-
 }
 
 
