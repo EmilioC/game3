@@ -323,9 +323,15 @@ class Enemy {
 
   }
   update(): void {
-    this.x += this.speedX;
+    this.x += this.speedX - this.game.speed;
     if (this.width !== undefined && (this.x + this.width) < 0) {
       this.markedForDeletion = true;
+    }
+    //sprite
+    if (this.frameX < this.maxFrame) {
+      this.frameX++;
+    } else {
+      this.frameX = 0;
     }
   }
   draw(context: any): void {
