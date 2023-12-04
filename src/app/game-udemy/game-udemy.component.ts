@@ -285,13 +285,13 @@ class Game {
   }
 }
 class Enemy {
-  public game: Game;
-  private x: number;
-  private speedX: number;
-  public markedForDeletion: boolean;
-  public width?: number; // Puedes dejarlo así o usar el signo '?'
-  public height?: number;// Puedes dejarlo así o usar el signo '?'
-  public y?: number;
+  game: Game;
+  x: number;
+  speedX: number;
+  markedForDeletion: boolean;
+  width: number; // Puedes dejarlo así o usar el signo '?'
+  height: number;// Puedes dejarlo así o usar el signo '?'
+  y: number;
   gradientShift: number;
   increasing: boolean;
   lives: number;
@@ -306,50 +306,27 @@ class Enemy {
     this.increasing = true;
     this.lives = 5;
     this.score = this.lives;
+    this.y = 0;
+    this.width = 0;
+    this.height = 0;
   }
 
   update(): void {
     this.x += this.speedX;
-    // Asegúrate de que 'width' está definido antes de usarlo
     if (this.width !== undefined && (this.x + this.width) < 0) {
       this.markedForDeletion = true;
     }
-    /*  EFECTOS  */
-    if (this.increasing) {
-      this.gradientShift += 0.01; // Ajusta la velocidad de cambio aquí
-      if (this.gradientShift >= 1) {
-        this.increasing = false;
-      }
-    } else {
-      this.gradientShift -= 0.01; // Ajusta la velocidad de cambio aquí
-      if (this.gradientShift <= 0) {
-        this.increasing = true;
-      }
-    }
-    /*  FIN EFECTOS  */
   }
   draw(context: CanvasRenderingContext2D): void {
-    // Asegúrate de que 'width', 'height' y 'y' están definidos antes de usarlos
-    if (this.width !== undefined && this.height !== undefined && this.y !== undefined) {
-      /* context.fillStyle = 'red'; */
 
-      /*  EFECTOS  */
-      let gradient = context.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
-      gradient.addColorStop(0, `rgba(255, 255, 0, ${this.gradientShift})`); // Amarillo
-      gradient.addColorStop(0.5, `rgba(255, 20, 147, ${this.gradientShift})`); // Rosa
-      gradient.addColorStop(1, `rgba(255, 0, 0, ${this.gradientShift})`); // Rojo
+    // Cambia el estilo de relleno a un color sólido, por ejemplo, 'red'
+    context.fillStyle = 'red';
+    context.fillRect(this.x, this.y, this.width, this.height);
 
-      // Aplicar el gradiente como estilo de relleno
-      context.fillStyle = gradient;
-      context.fillRect(this.x, this.y, this.width, this.height);
+    // Dibuja la vida del enemigo
+    context.font = '50px Arial';
+    context.fillText(this.lives.toString(), this.x, this.y);
 
-      // Aplicar el gradiente como estilo de relleno
-      context.fillStyle = gradient;
-      context.fillRect(this.x, this.y, this.width, this.height);
-      context.fillRect(this.x, this.y, this.width, this.height);
-      context.fillText(this.lives.toString(), this.x, this.y);
-      context.font = '50px Arial';
-    }
   }
 }
 class Angler1 extends Enemy {
