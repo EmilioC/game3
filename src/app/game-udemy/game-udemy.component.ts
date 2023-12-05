@@ -87,6 +87,7 @@ class Projectile {
   height: number;
   speed: number;
   markedForDeletion = false;
+  image: HTMLElement | null = null;
 
   constructor(game: Game, x: number, y: number) {
     this.game = game;
@@ -96,6 +97,7 @@ class Projectile {
     this.height = 3;
     this.speed = 3;
     this.markedForDeletion = false;
+    this.image = document.getElementById('projectile');
   }
   update() {
     this.x += this.speed;
@@ -103,7 +105,7 @@ class Projectile {
   }
   draw(context: any) {
     context.fillStyle = 'yellow';
-    context.fillRect(this.x, this.y, this.width, this.height);
+    context.drawImage(this.image, this.x, this.y);
   }
 }
 class Particle {
@@ -176,6 +178,9 @@ class Player {
   }
   draw(context: any) {
     if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
+    this.projectiles.forEach(projectile => {
+      projectile.draw(context);
+    });
     context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
   }
   shootTop() {
@@ -496,7 +501,7 @@ class UI {
   constructor(game: Game) {
     this.game = game;
     this.fontSize = 25;
-    this.fontFamily = 'Helvetica';
+    this.fontFamily = 'Bangers';
     this.color = "white"
   }
   draw(context: any) {
@@ -508,11 +513,6 @@ class UI {
     context.font = this.fontSize + 'px ' + this.fontFamily;
     //score
     context.fillText('Puntazos: ' + this.game.score, 20, 40);
-    //amo
-    for (let i = 0; i < this.game.ammo; i++) {
-      //descuenta los tiros y va añadiendo en función del tiempo
-      context.fillRect(20 + 5 * i, 50, 3, 20);
-    }
     //Timer
     const formattedTime = (this.game.gameTime * 0.001).toFixed(1);
     context.fillText('Tiempo: ' + formattedTime, 20, 100);
@@ -532,6 +532,12 @@ class UI {
       context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 20);
       context.font = '2 5px ' + this.fontFamily;
       context.fillText(message2, this.game.width * 0.5, this.game.height * 0.5 + 20);
+    }
+    //amo
+    if (this.game.player.powerUp) context.fillStyle = '#ffffbd';
+    for (let i = 0; i < this.game.ammo; i++) {
+      //descuenta los tiros y va añadiendo en función del tiempo
+      context.fillRect(20 + 5 * i, 50, 3, 20);
     }
     context.restore();
   }
