@@ -152,6 +152,9 @@ class Player {
     else if (this.game.keys.includes('ArrowDown')) this.speedY = this.maxSpeed;
     else this.speedY = 0;
     this.y += this.speedY;
+    // vertical boundaries
+    if (this.y > this.game.height - this.height * 0.5) this.y = this.game.height - this.height * 0.5;
+    else if (this.y < -this.height * 0.5) this.y = -this.height * 0.5;
     // handle projectiles
     this.projectiles.forEach(projectile => {
       projectile.update();
@@ -232,7 +235,7 @@ class Game {
     this.background = new Background(this);
     this.player = new Player(this);
     this.keys = []; // Initialize the keys array
-    this.debug = true;
+    this.debug = false;
     this.ammo = 30;
     this.maxAmmo = 50;
     this.ammoTimer = 0;
@@ -531,9 +534,9 @@ class UI {
         message1 = 'La cagaste burt lancaster!';
         message2 = '¿La refinitiva?';
       }
-      context.font = '70px ' + this.fontFamily;
+      context.font = '70 px ' + this.fontFamily;
       context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 20);
-      context.font = '2 25px ' + this.fontFamily;
+      context.font = '5px ' + this.fontFamily;
       context.fillText(message2, this.game.width * 0.5, this.game.height * 0.5 + 20);
     }
     //amo
