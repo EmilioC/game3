@@ -177,16 +177,17 @@ class Player {
   draw(context: any) {
     if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
     context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
-    this.projectiles.forEach(projectile => {
-      projectile.draw(context)
-    })
-    /* context.restore(); */
   }
   shootTop() {
     if (this.game.ammo > 0) {
       //this.x y this.y controlamos desde donde sale el disparo desde el objeto
       this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
       this.game.ammo--;
+    }
+  }
+  shootBottom() {
+    if (this.game.ammo > 0) {
+      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 175));
     }
   }
   enterPowerUp() {
