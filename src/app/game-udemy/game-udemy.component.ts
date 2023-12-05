@@ -108,7 +108,6 @@ class Projectile {
 }
 class Particle {
 }
-
 class Player {
   game: Game;
   width: number;
@@ -123,6 +122,9 @@ class Player {
   projectiles: Projectile[];
   ui: UI;
   image: HTMLElement;
+  powerUp: boolean;
+  powerUpTimer: number;
+  powerUpLimit: number;
 
   constructor(game: Game) {
     this.game = game;
@@ -138,9 +140,12 @@ class Player {
     this.projectiles = [];
     this.ui = new UI(this.game);
     this.image = document.getElementById('player')!;
+    this.powerUp = false;
+    this.powerUpTimer = 0;
+    this.powerUpLimit = 10000;
 
   }
-  update() {
+  update(deltaTime: number) {
     if (this.game.keys.includes('ArrowUp')) this.speedY = -this.maxSpeed;
     else if (this.game.keys.includes('ArrowDown')) this.speedY = this.maxSpeed;
     else this.speedY = 0;
@@ -155,6 +160,18 @@ class Player {
       this.frameX++;
     } else {
       this.frameX = 0;
+    }
+    // power up
+    if (this.powerUp) {
+      if (this.powerUpTimer > this.powerUpLimit) {
+        this.powerUpTimer = 0;
+        this.powerUp = false;
+        this.frameY = 0;
+      } else {
+        this.powerUpTimer += deltaTime;
+        this.frameY = 1;
+        this.game.ammo += 0.1;
+      }
     }
   }
   draw(context: any) {
@@ -171,6 +188,12 @@ class Player {
       this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
       this.game.ammo--;
     }
+  }
+  enterPowerUp() {
+    this.powerUpTimer = 0;
+    this.powerUp = true;
+    if (this.game.ammo < this.game.maxAmmo) this.game.ammo = this.game.maxAmmo;
+
   }
 }
 class Game {
@@ -230,7 +253,7 @@ class Game {
     if (!this.gameOver) this.gameTime += deltaTime;
     if (this.gameTime > this.timeLimit) this.gameOver = true;
     this.background.update();
-    this.player.update();
+    this.player.update(deltaTime);
     if (this.ammoTimer > this.ammoInterval) {
       if (this.ammo < this.maxAmmo) this.ammo++;
       this.ammoTimer = 0;
@@ -241,6 +264,8 @@ class Game {
       enemy.update();
       if (this.checkCollision(this.player, enemy)) {
         enemy.markedForDeletion = true;
+        if (enemy.type = 'lucky') this.player.enterPowerUp();
+        else this.score--;
       }
       // Eliminación enemy por disparo
       this.player.projectiles.forEach(projectile => {
