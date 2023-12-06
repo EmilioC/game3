@@ -109,6 +109,59 @@ class Projectile {
   }
 }
 class Particle {
+  game: Game;
+  x: number;
+  y: number;
+  image: HTMLElement | null = null;
+  frameX: number;
+  frameY: number;
+  spriteSize: number;
+  sizeModifier: number;
+  size: number;
+  speedX: number;
+  speedY: number;
+  gravity: number;
+  markedForDeletion: boolean;
+  angle: number;
+  va: number;
+  bounced: boolean;
+  bottomBounceBoundary: number;
+
+  constructor(game: Game, x: number, y: number) {
+    this.game = game;
+    this.x = x;
+    this.y = y;
+    this.image = document.getElementById('gears');
+    this.frameX = Math.floor(Math.random() * 3);
+    this.frameY = Math.floor(Math.random() * 3);
+    this.spriteSize = 50;
+    this.sizeModifier = +((Math.random() * 0.5 + 0.5).toFixed(1));
+    this.size = this.spriteSize * this.sizeModifier;
+    this.speedX = Math.random() * 6 - 3;
+    this.speedY = Math.random() * -15;
+    this.gravity = 0.5;
+    this.markedForDeletion = false;
+    this.angle = 0;
+    this.va = Math.random() * 0.2 - 0.1;
+    this.bounced = false;
+    this.bottomBounceBoundary = Math.random() * 80 + 60;
+  }
+  update() { //class Particle
+    this.angle += this.va;
+    this.speedY += this.gravity;
+    this.x -= this.speedX;
+    this.y += this.speedY;
+    if (this.y > this.game.height + this.size || this.x < 0 - this.size) this.markedForDeletion = true;
+    if (this.y > this.game.height - this.bottomBounceBoundary && !this.bounced) {
+      this.bounced = true;
+      this.speedY *= -0, 5;
+    }
+  }
+  draw(context: any) {
+    context.drawImage(this.image, this.frameX * this.spriteSize, this.frameY * this.spriteSize,
+      this.spriteSize, this.spriteSize, this.size * -0.5, this.size * -0.5, this.size, this.size);
+    context.restore();
+  }
 }
 class Player {
   game: Game;
@@ -147,7 +200,7 @@ class Player {
     this.powerUpLimit = 10000;
 
   }
-  update(deltaTime: number) {
+  update(deltaTime: number) {//class Player
     if (this.game.keys.includes('ArrowUp')) this.speedY = -this.maxSpeed;
     else if (this.game.keys.includes('ArrowDown')) this.speedY = this.maxSpeed;
     else this.speedY = 0;
@@ -179,7 +232,7 @@ class Player {
       }
     }
   }
-  draw(context: any) {
+  draw(context: any) { //class Player
     if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
     this.projectiles.forEach(projectile => {
       projectile.draw(context);
@@ -193,7 +246,7 @@ class Player {
       this.game.ammo--;
     }
   }
-  shootBottom() {
+  shootBottom() {// class Player
     if (this.game.ammo > 0) {
       this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 175));
     }
@@ -218,6 +271,7 @@ class Game {
   ammoInterval: number;
   ui: UI;
   enemies: any[];
+  particles: Particle[];
   enemyTimer: number;
   enemyInterval: number;
   gameOver: boolean;
@@ -242,6 +296,7 @@ class Game {
     this.ammoInterval = 500; // Límite disparos
     this.ui = new UI(this);
     this.enemies = [];
+    this.particles = [];
     this.enemyTimer = 0;
     this.enemyInterval = 1000;
     this.gameOver = false;
@@ -258,7 +313,7 @@ class Game {
     this.height = newHeight;
   }
 
-  update(deltaTime: number) {
+  update(deltaTime: number) { // class Game
     if (!this.gameOver) this.gameTime += deltaTime;
     if (this.gameTime > this.timeLimit) this.gameOver = true;
     this.background.update();
@@ -269,10 +324,15 @@ class Game {
     } else {
       this.ammoTimer += deltaTime;
     }
+    this.particles.forEach(particle => particle.update());
+    this.particles = this.particles.filter(particle => !particle.markedForDeletion);
     this.enemies.forEach(enemy => {
       enemy.update();
       if (this.checkCollision(this.player, enemy)) {
         enemy.markedForDeletion = true;
+        for (let i = 0; i < 10; i++) {
+          this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
+        }
         if (enemy.type = 'lucky') this.player.enterPowerUp();
         else this.score--;
       }
@@ -281,8 +341,12 @@ class Game {
         if (this.checkCollision(projectile, enemy)) {
           enemy.lives--;
           projectile.markedForDeletion = true;
+          this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5,
+            enemy.y + enemy.height * 0.5));
           if (enemy.lives <= 0) {
             enemy.markedForDeletion = true;
+
+
             if (!this.gameOver) this.score += enemy.score;
             if (this.score > this.winningScore) this.gameOver = true;
           }
@@ -297,11 +361,12 @@ class Game {
       this.enemyTimer += deltaTime;
     }
   }
-  draw(context: any) {
+  draw(context: any) { // class Game
 
     this.background.draw(context);
     this.player.draw(context);
     this.ui.draw(context);
+    this.particles.forEach(particle => particle.draw(context));
     this.enemies.forEach(enemy => {
       enemy.draw(context);
     });
@@ -313,7 +378,7 @@ class Game {
     else this.enemies.push(new LuckyFish(this));
   }
 
-  checkCollision(rect1: any, rect2: any) {
+  checkCollision(rect1: any, rect2: any) { // class Game
     return (
       rect1.x < rect2.x + rect2.width &&
       rect1.x + rect1.width > rect2.x &&
@@ -356,7 +421,7 @@ class Enemy {
     this.image = document.getElementById('player') as HTMLImageElement;
 
   }
-  update(): void {
+  update(): void { // class Enemy
     this.x += this.speedX - this.game.speed;
     if (this.width !== undefined && (this.x + this.width) < 0) {
       this.markedForDeletion = true;
@@ -368,7 +433,7 @@ class Enemy {
       this.frameX = 0;
     }
   }
-  draw(context: any): void {
+  draw(context: any): void { // class Enemy
     if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
     context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
     if (this.game.debug) {
@@ -510,7 +575,7 @@ class UI {
     this.fontFamily = 'Bangers';
     this.color = "white"
   }
-  draw(context: any) {
+  draw(context: any) { // class UI
     context.save();
     context.fillStyle = this.color;
     context.shadowOffsetX = 2;
@@ -533,7 +598,7 @@ class UI {
       } else {
         message1 = 'La cagaste burt lancaster!';
         message2 = '¿La refinitiva?';
-      }
+      } // class UI
       context.font = '70 px ' + this.fontFamily;
       context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 20);
       context.font = '5px ' + this.fontFamily;
