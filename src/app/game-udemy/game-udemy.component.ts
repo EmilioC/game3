@@ -159,7 +159,7 @@ class Particle {
   }
   draw(context: any) {
     context.drawImage(this.image, this.frameX * this.spriteSize, this.frameY * this.spriteSize,
-      this.spriteSize, this.spriteSize, this.size * -0.5, this.size * -0.5, this.size, this.size);
+      this.spriteSize, this.spriteSize, this.x, this.y, this.size, this.size);
     context.restore();
   }
 }
@@ -438,7 +438,7 @@ class Enemy {
       this.frameX = 0;
     }
   }
-  draw(context: any): void { // class Enemy
+  draw(context: any) { // class Enemy
     if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
     context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
     if (this.game.debug) {
