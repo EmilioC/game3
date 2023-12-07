@@ -198,7 +198,6 @@ class Player {
     this.powerUp = false;
     this.powerUpTimer = 0;
     this.powerUpLimit = 10000;
-
   }
   update(deltaTime: number) {//class Player
     if (this.game.keys.includes('ArrowUp')) this.speedY = -this.maxSpeed;
@@ -237,7 +236,8 @@ class Player {
     this.projectiles.forEach(projectile => {
       projectile.draw(context);
     });
-    context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
+    context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height,
+      this.width, this.height, this.x, this.y, this.width, this.height);
   }
   shootTop() {
     if (this.game.ammo > 0) {
@@ -245,6 +245,7 @@ class Player {
       this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 175));
       this.game.ammo--;
     }
+    if (this.powerUp) this.shootBottom();
   }
   shootBottom() {// class Player
     if (this.game.ammo > 0) {
@@ -375,7 +376,7 @@ class Game {
   }
   addEnemy() {
     const randomize = Math.random();
-    if (randomize < 0.5) this.enemies.push(new Angler1(this));
+    if (randomize < 0.1) this.enemies.push(new Angler1(this));
     else if (randomize < 0.5) this.enemies.push(new Angler2(this));
     else this.enemies.push(new LuckyFish(this));
   }
