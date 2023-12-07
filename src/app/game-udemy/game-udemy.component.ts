@@ -93,13 +93,13 @@ class Projectile {
     this.game = game;
     this.x = x;
     this.y = y;
-    this.width = 10;
-    this.height = 3;
-    this.speed = 3;
+    this.width = 30.25;
+    this.height = 20;
+    this.speed = Math.random() * 0.2 + 2.8;
     this.markedForDeletion = false;
     this.image = document.getElementById('projectile');
   }
-  update() {
+  update(deltaTime: number) {
     this.x += this.speed;
     if (this.x > this.game.width * 0.8) this.markedForDeletion = true;
   }
@@ -210,7 +210,7 @@ class Player {
     else if (this.y < -this.height * 0.5) this.y = -this.height * 0.5;
     // handle projectiles
     this.projectiles.forEach(projectile => {
-      projectile.update();
+      projectile.update(deltaTime);
     })
     this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
     //sprite
@@ -242,7 +242,7 @@ class Player {
   shootTop() {
     if (this.game.ammo > 0) {
       //this.x y this.y controlamos desde donde sale el disparo desde el objeto
-      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
+      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 175));
       this.game.ammo--;
     }
   }
@@ -330,7 +330,7 @@ class Game {
       enemy.update();
       if (this.checkCollision(this.player, enemy)) {
         enemy.markedForDeletion = true;
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < enemy.score; i++) {
           this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
         }
         if (enemy.type === 'lucky') this.player.enterPowerUp();
@@ -344,18 +344,17 @@ class Game {
           this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5,
             enemy.y + enemy.height * 0.5));
           if (enemy.lives <= 0) {
-            for (let i = 0; i < 10; i++) {
-              this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
+            for (let i = 0; i < enemy.score; i++) {
+              this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5,
+                enemy.y + enemy.height * 0.5));
             }
             enemy.markedForDeletion = true;
-
-
             if (!this.gameOver) this.score += enemy.score;
             if (this.score > this.winningScore) this.gameOver = true;
           }
         }
       })
-    })
+    });
     this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
     if (this.enemyTimer > this.enemyInterval && !this.gameOver) {
       this.addEnemy();
@@ -367,8 +366,8 @@ class Game {
   draw(context: any) { // class Game
 
     this.background.draw(context);
-    this.player.draw(context);
     this.ui.draw(context);
+    this.player.draw(context);
     this.particles.forEach(particle => particle.draw(context));
     this.enemies.forEach(enemy => {
       enemy.draw(context);
@@ -426,9 +425,11 @@ class Enemy {
   }
   update(): void { // class Enemy
     this.x += this.speedX - this.game.speed;
-    if (this.width !== undefined && (this.x + this.width) < 0) {
-      this.markedForDeletion = true;
-    }
+    if (this.x + this.width < 0) this.markedForDeletion = true;
+
+    /*     if (this.width !== undefined && (this.x + this.width) < 0) { //Revisando efectos tuercas al eliminar no funciona
+          this.markedForDeletion = true;
+        } */
     //sprite
     if (this.frameX < this.maxFrame) {
       this.frameX++;
@@ -468,12 +469,11 @@ class Angler2 extends Enemy {
     super(game);
     this.width = 213;
     this.height = 165;
-    this.image = document.getElementById('angler2')!;
-    this.frameY = Math.floor(Math.random() * 3);
-    //Posición en pantalla
-    this.y = Math.random() * (this.game.height * 0.9 - this.height);
-    this.lives = 3;
-    this.score = this.lives;;
+    this.y = Math.random() * (this.game.height * 0.95 - this.height);  //Posición en pantalla
+    this.image = document.getElementById('angler2');
+    this.frameY = Math.floor(Math.random() * 2);
+    this.lives = 6;
+    this.score = this.lives;
   }
 }
 class LuckyFish extends Enemy {
@@ -482,8 +482,8 @@ class LuckyFish extends Enemy {
     super(game);
     this.width = 99;
     this.height = 95;
-    this.y = Math.random() * (this.game.height * 0.9 - this.height);//Posición en pantalla
-    this.image = document.getElementById('lucky')!;
+    this.y = Math.random() * (this.game.height * 0.95 - this.height);//Posición en pantalla
+    this.image = document.getElementById('lucky');
     this.frameY = Math.floor(Math.random() * 2);
     this.lives = 3;
     this.score = 15;
