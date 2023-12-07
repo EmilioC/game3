@@ -124,7 +124,7 @@ class Particle {
   markedForDeletion: boolean;
   angle: number;
   va: number;
-  bounced: boolean;
+  bounced: number;
   bottomBounceBoundary: number;
 
   constructor(game: Game, x: number, y: number) {
@@ -143,7 +143,7 @@ class Particle {
     this.markedForDeletion = false;
     this.angle = 0;
     this.va = Math.random() * 0.2 - 0.1;
-    this.bounced = false;
+    this.bounced = 0;
     this.bottomBounceBoundary = Math.random() * 80 + 60;
   }
   update() { //class Particle
@@ -153,8 +153,8 @@ class Particle {
     this.y += this.speedY;
     if (this.y > this.game.height + this.size || this.x < 0 - this.size) this.markedForDeletion = true;
     if (this.y > this.game.height - this.bottomBounceBoundary && !this.bounced) {
-      this.bounced = true;
-      this.speedY *= -0, 5;
+      this.bounced++;
+      this.speedY *= -0.5;
     }
   }
   draw(context: any) {
@@ -333,8 +333,8 @@ class Game {
         for (let i = 0; i < 10; i++) {
           this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
         }
-        if (enemy.type = 'lucky') this.player.enterPowerUp();
-        else this.score--;
+        if (enemy.type === 'lucky') this.player.enterPowerUp();
+        else if (!this.gameOver) this.score--;
       }
       // Eliminación enemy por disparo
       this.player.projectiles.forEach(projectile => {
@@ -344,6 +344,9 @@ class Game {
           this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5,
             enemy.y + enemy.height * 0.5));
           if (enemy.lives <= 0) {
+            for (let i = 0; i < 10; i++) {
+              this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
+            }
             enemy.markedForDeletion = true;
 
 
@@ -454,36 +457,38 @@ class Angler1 extends Enemy {
     this.height = 169;
     //Posición en pantalla
     this.y = Math.random() * (this.game.height * 0.9 - this.height);
-    this.image = document.getElementById('angler1')!;
+    this.image = document.getElementById('angler1');
     this.frameY = Math.floor(Math.random() * 3);
-    this.lives = 3;
+    this.lives = 5;
     this.score = this.lives;
   }
 }
 class Angler2 extends Enemy {
-  type: String;
   constructor(game: Game) {
     super(game);
-    this.width = 228;
-    this.height = 169;
+    this.width = 213;
+    this.height = 165;
     this.image = document.getElementById('angler2')!;
     this.frameY = Math.floor(Math.random() * 3);
     //Posición en pantalla
     this.y = Math.random() * (this.game.height * 0.9 - this.height);
     this.lives = 3;
-    this.score = 15;
-    this.type = 'lucky';
+    this.score = this.lives;;
   }
 }
 class LuckyFish extends Enemy {
+  type: String;
   constructor(game: Game) {
     super(game);
     this.width = 99;
     this.height = 95;
+    this.y = Math.random() * (this.game.height * 0.9 - this.height);//Posición en pantalla
     this.image = document.getElementById('lucky')!;
-    this.frameY = Math.floor(Math.random() * 3);
-    //Posición en pantalla
-    this.y = Math.random() * (this.game.height * 0.9 - this.height);
+    this.frameY = Math.floor(Math.random() * 2);
+    this.lives = 3;
+    this.score = 15;
+    this.type = 'lucky';
+
   }
 }
 class HiveWhale {
