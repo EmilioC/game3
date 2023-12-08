@@ -244,7 +244,7 @@ class Player {
   shootTop() {
     if (this.game.ammo > 0) {
       //this.x y this.y controlamos desde donde sale el disparo desde el objeto
-      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 175));
+      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
       this.game.ammo--;
     }
     if (this.powerUp) this.shootBottom();
@@ -352,6 +352,14 @@ class Game {
                 enemy.y + enemy.height * 0.5));
             }
             enemy.markedForDeletion = true;
+            if (enemy.type === 'hive') {//Eliminamos 1hive creamos 5 Drone
+              for (let i = 0; i < 5; i++) {
+                this.enemies.push(new Drone(this, enemy.x + Math.random() *
+                  enemy.width, enemy.y + Math.random() * enemy.height * 0.5));
+                console.log('enemy.type === HIVE = NEW DRONE');
+              }
+              console.log('enemy.type === HIVE = NEW DRONE');
+            }
             if (!this.gameOver) this.score += enemy.score;
             if (this.score > this.winningScore) this.gameOver = true;
           }
@@ -514,7 +522,21 @@ class HiveWhale extends Enemy {
     this.speedX = Math.random() * -12 - 0.2;
   }
 }
-class Drone {
+class Drone extends Enemy {
+  type: String;
+  constructor(game: Game, x: number, y: number) {
+    super(game);
+    this.width = 115;
+    this.height = 95;
+    this.x = x;
+    this.y = y;
+    this.image = document.getElementById('drone');
+    this.frameY = Math.floor(Math.random() * 2);;
+    this.lives = 15;
+    this.score = this.lives;
+    this.type = 'hive';
+    this.speedX = Math.random() * -4.2 - 0.5;
+  }
 }
 class BulbWhale {
 }
@@ -582,9 +604,57 @@ class Background {
   }
 }
 class Explosion {
+  game: Game;
+  x: number;
+  y: number;
+  frameX: number;
+  spriteHeight: number;
+  fps: number;
+  timer: number;
+  interval: number;
+  markedForDeletion: boolean;
+  spriteWidth: number;
+  width: number;
+  height: number;
+  maxFrame: number;
+  image: HTMLElement;
+  constructor(game: Game, x: number, y: number) {
+    this.game = game;
+    this.frameX = 0;
+    this.spriteWidth = 200;
+    this.spriteHeight = 200;
+    this.width = this.spriteWidth;
+    this.height = this.spriteHeight;
+    this.x = x - this.width * 0.5;
+    this.y = y - this.height * 0.5;
+    this.fps = 30;
+    this.timer = 0;
+    this.interval = 1000 / this.fps;
+    this.markedForDeletion = false;
+    this.maxFrame = 8;
+    this.image = document.getElementById('player')!;
+  }
+  update(deltaTime: number) {
+    this.x -= this.game.speed;
+    if (this.timer > this.interval) {
+      this.frameX++;
+      this.timer = 0;
+    } else {
+      this.timer += deltaTime;
+    }
+    if (this.frameX > this.maxFrame) this.markedForDeletion = true;
+  }
+  draw(context: any) {
+    context.drawImage(this.image, this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height);
+  }
 }
 
-class SmokeExplosion {
+class SmokeExplosion extends Explosion {
+  game: Game;
+  constructor(game: Game, x: number, y: number) {
+    super(game, x, y);
+    this.image = document.getElementById('smokeExplosion');
+  }
 }
 
 class FireExplosion {
