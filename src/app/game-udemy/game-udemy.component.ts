@@ -72,7 +72,6 @@ class InputHandler {
   }
 }
 
-
 class SoundController {
 }
 
@@ -149,17 +148,20 @@ class Particle {
   update() { //class Particle
     this.angle += this.va;
     this.speedY += this.gravity;
-    this.x -= this.speedX;
+    this.x -= this.speedX + this.game.speed;
     this.y += this.speedY;
     if (this.y > this.game.height + this.size || this.x < 0 - this.size) this.markedForDeletion = true;
-    if (this.y > this.game.height - this.bottomBounceBoundary && !this.bounced) {
+    if (this.y > this.game.height - this.bottomBounceBoundary && this.bounced < 5) {
       this.bounced++;
       this.speedY *= -0.5;
     }
   }
   draw(context: any) {
+    context.save();
+    context.translate(this.x, this.y);
+    context.rotate(this.angle);
     context.drawImage(this.image, this.frameX * this.spriteSize, this.frameY * this.spriteSize,
-      this.spriteSize, this.spriteSize, this.x, this.y, this.size, this.size);
+      this.spriteSize, this.spriteSize, this.size * -0.5, this.size * -0.5, this.size, this.size);
     context.restore();
   }
 }
@@ -302,7 +304,7 @@ class Game {
     this.enemyInterval = 1000;
     this.gameOver = false;
     this.score = 0;
-    this.winningScore = 5;
+    this.winningScore = 80;
     this.gameTime = 0;
     this.timeLimit = 50000;
     this.speed = 1;
@@ -365,7 +367,6 @@ class Game {
     }
   }
   draw(context: any) { // class Game
-
     this.background.draw(context);
     this.ui.draw(context);
     this.player.draw(context);
