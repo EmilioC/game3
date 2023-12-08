@@ -287,6 +287,8 @@ class Game {
   speed: number;
   layer1: HTMLImageElement;
   public randomize: number;
+  explosions: Explosion[];
+  explosion: Explosion;
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
@@ -311,6 +313,8 @@ class Game {
     this.speed = 1;
     this.layer1 = undefined!;
     this.randomize = 0;
+    this.explosions = [];
+    this.explosion = new Explosion(this, this.x!, this.y!);//REVISAR CLASE 30 05:24
   }
   resize(newWidth: number, newHeight: number): void {
     this.width = newWidth;
@@ -329,10 +333,13 @@ class Game {
     }
     this.particles.forEach(particle => particle.update());
     this.particles = this.particles.filter(particle => !particle.markedForDeletion);
+    this.explosions.forEach(explosion => explosion.update(deltaTime));
+    this.explosions = this.explosions.filter(explosion => !this.explosion.markedForDeletion);
     this.enemies.forEach(enemy => {
       enemy.update();
       if (this.checkCollision(this.player, enemy)) {
         enemy.markedForDeletion = true;
+        this.addExplosion(enemy);
         for (let i = 0; i < enemy.score; i++) {
           this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
         }
@@ -352,13 +359,12 @@ class Game {
                 enemy.y + enemy.height * 0.5));
             }
             enemy.markedForDeletion = true;
+            this.addExplosion(enemy);
             if (enemy.type === 'hive') {//Eliminamos 1hive creamos 5 Drone
               for (let i = 0; i < 5; i++) {
                 this.enemies.push(new Drone(this, enemy.x + Math.random() *
                   enemy.width, enemy.y + Math.random() * enemy.height * 0.5));
-                console.log('enemy.type === HIVE = NEW DRONE');
               }
-              console.log('enemy.type === HIVE = NEW DRONE');
             }
             if (!this.gameOver) this.score += enemy.score;
             if (this.score > this.winningScore) this.gameOver = true;
@@ -382,6 +388,9 @@ class Game {
     this.enemies.forEach(enemy => {
       enemy.draw(context);
     });
+    this.explosions.forEach(explosion => {
+      explosion.draw(context);
+    });
   }
   addEnemy() {
     const randomize = this.randomize;
@@ -393,9 +402,16 @@ class Game {
       console.log('HiveWhale agregado', randomize, this.enemies[this.enemies.length - 1]);
     }//Cantidad HiveWhale
     else this.enemies.push(new LuckyFish(this));
-
   }
 
+  addExplosion(enemy: Enemy) {
+    const randomize = Math.random();
+    if (randomize < 1) {
+      this.explosions.push(new SmokeExplosion(this, enemy.x + enemy.width * 0.5,
+        enemy.y + enemy.height));
+      console.log(this.explosion);
+    };
+  }
   checkCollision(rect1: any, rect2: any) { // class Game
     return (
       rect1.x < rect2.x + rect2.width &&
@@ -635,14 +651,7 @@ class Explosion {
     this.image = document.getElementById('player')!;
   }
   update(deltaTime: number) {
-    this.x -= this.game.speed;
-    if (this.timer > this.interval) {
-      this.frameX++;
-      this.timer = 0;
-    } else {
-      this.timer += deltaTime;
-    }
-    if (this.frameX > this.maxFrame) this.markedForDeletion = true;
+    this.frameX++;
   }
   draw(context: any) {
     context.drawImage(this.image, this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height);
@@ -650,10 +659,17 @@ class Explosion {
 }
 
 class SmokeExplosion extends Explosion {
-  game: Game;
+  /*  x: number;
+   y: number; */
   constructor(game: Game, x: number, y: number) {
+
     super(game, x, y);
-    this.image = document.getElementById('smokeExplosion');
+    this.image = document.getElementById('smokeExplosion')!;
+    this.spriteWidth = 200;
+    this.width = this.spriteWidth;
+    this.height = this.spriteHeight;
+    this.x = x - this.width * 0.5;
+    this.y = y - this.height * 0.5;
   }
 }
 
