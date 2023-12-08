@@ -651,7 +651,14 @@ class Explosion {
     this.image = document.getElementById('player')!;
   }
   update(deltaTime: number) {
-    this.frameX++;
+    this.x -= this.game.speed;
+    if (this.timer > this.interval) {
+      this.frameX++;
+      this.timer = 0;
+    } else {
+      this.timer += deltaTime;
+    }
+    if (this.frameX > this.maxFrame) this.markedForDeletion = true;
   }
   draw(context: any) {
     context.drawImage(this.image, this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height);
