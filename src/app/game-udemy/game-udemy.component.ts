@@ -286,6 +286,7 @@ class Game {
   timeLimit: number;
   speed: number;
   layer1: HTMLImageElement;
+  public randomize: number;
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
@@ -309,13 +310,12 @@ class Game {
     this.timeLimit = 50000;
     this.speed = 1;
     this.layer1 = undefined!;
-
+    this.randomize = 0;
   }
   resize(newWidth: number, newHeight: number): void {
     this.width = newWidth;
     this.height = newHeight;
   }
-
   update(deltaTime: number) { // class Game
     if (!this.gameOver) this.gameTime += deltaTime;
     if (this.gameTime > this.timeLimit) this.gameOver = true;
@@ -376,12 +376,16 @@ class Game {
     });
   }
   addEnemy() {
-    const randomize = Math.random();
-    this.enemies.push(new HiveWhale(this));
-    if (randomize < 0.3) this.enemies.push(new Angler1(this));
-    else if (randomize < 0.6) this.enemies.push(new Angler2(this));
-    else if (randomize < 0.8) this.enemies.push(new HiveWhale(this));
+    const randomize = this.randomize;
+    this.randomize = Math.random();
+    if (randomize < 0.3) this.enemies.push(new Angler1(this)); //Cantidad Angler1
+    else if (randomize < 0.6) this.enemies.push(new Angler2(this));//Cantidad Angler2
+    else if (randomize < 0.8) {
+      this.enemies.push(new HiveWhale(this));
+      console.log('HiveWhale agregado', randomize, this.enemies[this.enemies.length - 1]);
+    }//Cantidad HiveWhale
     else this.enemies.push(new LuckyFish(this));
+
   }
 
   checkCollision(rect1: any, rect2: any) { // class Game
@@ -643,12 +647,19 @@ class UI {
   styleUrls: ['./game-udemy.component.css']
 })
 export class game_udemy implements AfterViewInit {
+  // Visualizar variable randomize. Es utilizada en la clase Game para generar
+  //enemigos en la array enemies.push
+  get gameRandomize(): number {
+    return this.game ? this.game.randomize : 0;
+  }
+
   @ViewChild('canvas1') canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx: CanvasRenderingContext2D | null = null;
   private game!: Game;
   private animationFrameId!: number;
   private inputHandler!: InputHandler;
   private lastTime: number = 0;
+
 
   /*   ngAfterViewInit(): void {
       const canvas = this.canvasRef.nativeElement;
@@ -664,6 +675,7 @@ export class game_udemy implements AfterViewInit {
 
   ngAfterViewInit(): void {
     const canvas = this.canvasRef.nativeElement;
+
     this.ctx = canvas.getContext('2d');
     // Ajustar el tamaño del canvas al tamaño de la ventana
     this.resizeCanvas(canvas);
