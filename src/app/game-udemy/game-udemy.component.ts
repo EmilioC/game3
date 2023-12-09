@@ -73,6 +73,35 @@ class InputHandler {
 }
 
 class SoundController {
+  powerUpSound: HTMLAudioElement;
+  powerDownSound: HTMLAudioElement;
+  explosionSound: HTMLAudioElement;
+  constructor() {
+    const audiopowerUpSound = document.getElementById('powerup');
+    if (audiopowerUpSound instanceof HTMLAudioElement) {
+      this.powerUpSound = audiopowerUpSound;
+    } else { throw new Error("Elemento 'powerup' no es un HTMLAudioElement"); }
+    const audiopowerDownSound = document.getElementById('powerup');
+    if (audiopowerDownSound instanceof HTMLAudioElement) {
+      this.powerDownSound = audiopowerDownSound;
+    } else { throw new Error("Elemento 'powerup' no es un HTMLAudioElement"); }
+    const audioexplosionSound = document.getElementById('powerup');
+    if (audiopowerDownSound instanceof HTMLAudioElement) {
+      this.explosionSound = audiopowerDownSound;
+    } else { throw new Error("Elemento 'powerup' no es un HTMLAudioElement"); }
+  }
+  powerUp() {
+    this.powerUpSound.currentTime = 0;
+    this.powerUpSound.play();
+  }
+  powerDown() {
+    this.powerDownSound.currentTime = 0;
+    this.powerDownSound.play();
+  }
+  explosion() {
+    this.explosionSound.currentTime = 0;
+    this.explosionSound.play();
+  }
 }
 
 class Shield {
@@ -226,6 +255,7 @@ class Player {
         this.powerUpTimer = 0;
         this.powerUp = false;
         this.frameY = 0;
+        this.game.sound.powerDown();
       } else {
         this.powerUpTimer += deltaTime;
         this.frameY = 1;
@@ -258,6 +288,7 @@ class Player {
     this.powerUpTimer = 0;
     this.powerUp = true;
     if (this.game.ammo < this.game.maxAmmo) this.game.ammo = this.game.maxAmmo;
+    this.game.sound.powerUp();
 
   }
 }
@@ -289,6 +320,7 @@ class Game {
   public randomize: number;
   explosions: Explosion[];
   explosion: Explosion;
+  sound: SoundController;
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
@@ -315,6 +347,7 @@ class Game {
     this.randomize = 0;
     this.explosions = [];
     this.explosion = new Explosion(this, this.x!, this.y!);//REVISAR CLASE 30 05:24
+    this.sound = new SoundController();
   }
   resize(newWidth: number, newHeight: number): void {
     this.width = newWidth;
