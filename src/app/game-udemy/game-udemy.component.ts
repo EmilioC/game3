@@ -299,17 +299,17 @@ class Game {
     this.ammo = 30;
     this.maxAmmo = 50;
     this.ammoTimer = 0;
-    this.ammoInterval = 500; // Límite disparos
+    this.ammoInterval = 350; // Límite disparos
     this.ui = new UI(this);
     this.enemies = [];
     this.particles = [];
     this.enemyTimer = 0;
-    this.enemyInterval = 1000;
+    this.enemyInterval = 2000;
     this.gameOver = false;
     this.score = 0;
     this.winningScore = 80;
     this.gameTime = 0;
-    this.timeLimit = 50000;
+    this.timeLimit = 30000;
     this.speed = 1;
     this.layer1 = undefined!;
     this.randomize = 0;
@@ -360,6 +360,7 @@ class Game {
             }
             enemy.markedForDeletion = true;
             this.addExplosion(enemy);
+            if (enemy.type === 'moon') this.player.enterPowerUp();
             if (enemy.type === 'hive') {//Eliminamos 1hive creamos 5 Drone
               for (let i = 0; i < 5; i++) {
                 this.enemies.push(new Drone(this, enemy.x + Math.random() *
@@ -367,7 +368,7 @@ class Game {
               }
             }
             if (!this.gameOver) this.score += enemy.score;
-            if (this.score > this.winningScore) this.gameOver = true;
+            //if (this.score > this.winningScore) this.gameOver = true;
           }
         }
       })
@@ -397,9 +398,9 @@ class Game {
     this.randomize = Math.random();
     if (randomize < 0.3) this.enemies.push(new Angler1(this)); //Cantidad Angler1
     else if (randomize < 0.6) this.enemies.push(new Angler2(this));//Cantidad Angler2
-    else if (randomize < 0.8) {
-      this.enemies.push(new HiveWhale(this));
-    }//Cantidad HiveWhale
+    else if (randomize < 0.7) this.enemies.push(new HiveWhale(this));
+    else if (randomize < 0.8) this.enemies.push(new BulbWhale(this));//Cantidad HiveWhale
+    else if (randomize < 0.9) this.enemies.push(new MoonFish(this));//Cantidad HiveWhale
     else this.enemies.push(new LuckyFish(this));
   }
 
@@ -520,7 +521,7 @@ class LuckyFish extends Enemy {
     this.y = Math.random() * (this.game.height * 0.95 - this.height);//Posición en pantalla
     this.image = document.getElementById('lucky');
     this.frameY = Math.floor(Math.random() * 2);
-    this.lives = 3;
+    this.lives = 5;
     this.score = 15;
     this.type = 'lucky';
 
@@ -535,7 +536,7 @@ class HiveWhale extends Enemy {
     this.y = Math.random() * (this.game.height * 0.95 - this.height);//Posición en pantalla
     this.image = document.getElementById('hivewhale');
     this.frameY = 0;
-    this.lives = 15;
+    this.lives = 20;
     this.score = this.lives;
     this.type = 'hive';
     this.speedX = Math.random() * -12 - 0.2;
@@ -557,9 +558,33 @@ class Drone extends Enemy {
     this.speedX = Math.random() * -4.2 - 0.5;
   }
 }
-class BulbWhale {
+class BulbWhale extends Enemy {
+  constructor(game: Game) {
+    super(game);
+    this.width = 270;
+    this.height = 219;
+    this.y = Math.random() * (this.game.height * 0.95 - this.height);//Posición en pantalla
+    this.image = document.getElementById('bulbwhale');
+    this.frameY = Math.floor(Math.random() * 2);
+    this.lives = 20;
+    this.score = this.lives;
+    this.speedX = Math.random() * -1.2 - 0.2;
+  }
 }
-class MoonFish {
+class MoonFish extends Enemy {
+  type: string;
+  constructor(game: Game) {
+    super(game);
+    this.width = 227;
+    this.height = 240;
+    this.y = Math.random() * (this.game.height * 0.95 - this.height);//Posición en pantalla
+    this.image = document.getElementById('moonfish');
+    this.frameY = Math.floor(Math.random() * 2);
+    this.lives = 10;
+    this.score = this.lives;
+    this.speedX = Math.random() * -1.2 - 0.2;
+    this.type = 'moon';
+  }
 }
 class Stalker {
 }
