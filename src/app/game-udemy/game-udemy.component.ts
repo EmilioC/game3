@@ -399,18 +399,21 @@ class Game {
     else if (randomize < 0.6) this.enemies.push(new Angler2(this));//Cantidad Angler2
     else if (randomize < 0.8) {
       this.enemies.push(new HiveWhale(this));
-      console.log('HiveWhale agregado', randomize, this.enemies[this.enemies.length - 1]);
     }//Cantidad HiveWhale
     else this.enemies.push(new LuckyFish(this));
   }
 
   addExplosion(enemy: Enemy) {
     const randomize = Math.random();
-    if (randomize < 1) {
+    if (randomize < 0.5) {
       this.explosions.push(new SmokeExplosion(this, enemy.x + enemy.width * 0.5,
         enemy.y + enemy.height));
-      console.log(this.explosion);
-    };
+      this.explosions.push(new FireExplosion(this, enemy.x + enemy.width * 0.5,
+        enemy.y + enemy.height * 0.5));
+    } /* else {
+      this.explosions.push(new FireExplosion(this, enemy.x + enemy.width * 0.5,
+        enemy.y + enemy.height * 0.5));
+    } */
   }
   checkCollision(rect1: any, rect2: any) { // class Game
     return (
@@ -643,7 +646,7 @@ class Explosion {
     this.height = this.spriteHeight;
     this.x = x - this.width * 0.5;
     this.y = y - this.height * 0.5;
-    this.fps = 30;
+    this.fps = 15; //Velocidad desaparece nubes explisión
     this.timer = 0;
     this.interval = 1000 / this.fps;
     this.markedForDeletion = false;
@@ -666,23 +669,18 @@ class Explosion {
 }
 
 class SmokeExplosion extends Explosion {
-  /*  x: number;
-   y: number; */
   constructor(game: Game, x: number, y: number) {
-
     super(game, x, y);
     this.image = document.getElementById('smokeExplosion')!;
-    this.spriteWidth = 200;
-    this.width = this.spriteWidth;
-    this.height = this.spriteHeight;
-    this.x = x - this.width * 0.5;
-    this.y = y - this.height * 0.5;
   }
 }
 
-class FireExplosion {
+class FireExplosion extends Explosion {
+  constructor(game: Game, x: number, y: number) {
+    super(game, x, y);
+    this.image = document.getElementById('fireExplosion')!;
+  }
 }
-
 class UI {
   game: Game;
   fontSize: number;
@@ -822,9 +820,8 @@ export class game_udemy implements AfterViewInit {
     this.lastTime = timeStamp;
 
     this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
-    this.game.update(deltaTime);
     this.game.draw(this.ctx);
-
+    this.game.update(deltaTime);
     this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp));
 
   }
