@@ -185,24 +185,41 @@ class Projectile {
   speed: number;
   markedForDeletion = false;
   image: HTMLElement | null = null;
+  frameX: number;
+  maxFrame: number;
+  timer: number;
+  fps: number;
+  interval: number;
 
   constructor(game: Game, x: number, y: number) {
     this.game = game;
     this.x = x;
     this.y = y;
-    this.width = 30.25;
+    this.width = 36.25;
     this.height = 20;
     this.speed = Math.random() * 0.2 + 2.8;
     this.markedForDeletion = false;
-    this.image = document.getElementById('projectile');
+    this.image = document.getElementById('fireball');
+    this.frameX = 0;
+    this.maxFrame = 3;
+    this.timer = 0;
+    this.fps = 20;
+    this.interval = 1000 / this.fps;
   }
   update(deltaTime: number) {
     this.x += this.speed;
+    if (this.timer > this.interval) {
+      if (this.frameX < this.maxFrame) this.frameX++;
+      else this.frameX = 0;
+      this.timer = 0;
+    } else {
+      this.timer += deltaTime;
+    }
     if (this.x > this.game.width * 0.8) this.markedForDeletion = true;
   }
   draw(context: any) {
-    context.fillStyle = 'yellow';
-    context.drawImage(this.image, this.x, this.y);
+    context.drawImage(this.image, this.frameX * this.width, 0, this.width,
+      this.height, this.x, this.y, this.width, this.height);
   }
 }
 class Particle {
@@ -691,7 +708,7 @@ class MoonFish extends Enemy {
     this.height = 240;
     this.y = Math.random() * (this.game.height * 0.95 - this.height);//Posición en pantalla
     this.image = document.getElementById('moonfish');
-    this.frameY = Math.floor(Math.random() * 2);
+    this.frameY = 0;
     this.lives = 10;
     this.score = this.lives;
     this.speedX = Math.random() * -1.2 - 0.2;
