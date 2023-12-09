@@ -76,18 +76,38 @@ class SoundController {
   powerUpSound: HTMLAudioElement;
   powerDownSound: HTMLAudioElement;
   explosionSound: HTMLAudioElement;
+  shotSound: HTMLAudioElement;
+  hitSound: HTMLAudioElement;
+  shieldSound: HTMLAudioElement;
   constructor() {
     const audiopowerUpSound = document.getElementById('powerup');
     if (audiopowerUpSound instanceof HTMLAudioElement) {
       this.powerUpSound = audiopowerUpSound;
     } else { throw new Error("Elemento 'powerup' no es un HTMLAudioElement"); }
-    const audiopowerDownSound = document.getElementById('powerup');
+
+    const audiopowerDownSound = document.getElementById('powerdown');
     if (audiopowerDownSound instanceof HTMLAudioElement) {
       this.powerDownSound = audiopowerDownSound;
     } else { throw new Error("Elemento 'powerup' no es un HTMLAudioElement"); }
-    const audioexplosionSound = document.getElementById('powerup');
-    if (audiopowerDownSound instanceof HTMLAudioElement) {
-      this.explosionSound = audiopowerDownSound;
+
+    const audioexplosionSound = document.getElementById('explosion');
+    if (audioexplosionSound instanceof HTMLAudioElement) {
+      this.explosionSound = audioexplosionSound;
+    } else { throw new Error("Elemento 'powerup' no es un HTMLAudioElement"); }
+
+    const audioshotSound = document.getElementById('shot');
+    if (audioshotSound instanceof HTMLAudioElement) {
+      this.shotSound = audioshotSound;
+    } else { throw new Error("Elemento 'powerup' no es un HTMLAudioElement"); }
+
+    const audiohitSound = document.getElementById('hit');
+    if (audiohitSound instanceof HTMLAudioElement) {
+      this.hitSound = audiohitSound;
+    } else { throw new Error("Elemento 'powerup' no es un HTMLAudioElement"); }
+
+    const audioshieldSound = document.getElementById('shieldSound');
+    if (audioshieldSound instanceof HTMLAudioElement) {
+      this.shieldSound = audioshieldSound;
     } else { throw new Error("Elemento 'powerup' no es un HTMLAudioElement"); }
   }
   powerUp() {
@@ -101,6 +121,18 @@ class SoundController {
   explosion() {
     this.explosionSound.currentTime = 0;
     this.explosionSound.play();
+  }
+  shot() {
+    this.shotSound.currentTime = 0;
+    this.shotSound.play();
+  }
+  hit() {
+    this.hitSound.currentTime = 0;
+    this.hitSound.play();
+  }
+  shield() {
+    this.shieldSound.currentTime = 0;
+    this.shieldSound.play();
   }
 }
 
