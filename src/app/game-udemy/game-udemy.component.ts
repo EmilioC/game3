@@ -376,6 +376,8 @@ class Game {
   ui: UI;
   enemies: any[];
   particles: Particle[];
+  explosions: Explosion[];
+  shield: Shield;
   enemyTimer: number;
   enemyInterval: number;
   gameOver: boolean;
@@ -388,7 +390,7 @@ class Game {
   speed: number;
   layer1: HTMLImageElement;
   public randomize: number;
-  explosions: Explosion[];
+
   explosion: Explosion;
   sound: SoundController;
   constructor(width: number, height: number) {
@@ -396,13 +398,16 @@ class Game {
     this.height = height;
     this.background = new Background(this);
     this.player = new Player(this);
+    this.ui = new UI(this);
+    this.explosion = new Explosion(this, this.x!, this.y!);//REVISAR CLASE 30 05:24
+    this.sound = new SoundController();
+    this.shield = new Shield(this);
     this.keys = []; // Initialize the keys array
     this.debug = false;
     this.ammo = 30;
     this.maxAmmo = 50;
     this.ammoTimer = 0;
     this.ammoInterval = 350; // Límite disparos
-    this.ui = new UI(this);
     this.enemies = [];
     this.particles = [];
     this.enemyTimer = 0;
@@ -416,8 +421,7 @@ class Game {
     this.layer1 = undefined!;
     this.randomize = 0;
     this.explosions = [];
-    this.explosion = new Explosion(this, this.x!, this.y!);//REVISAR CLASE 30 05:24
-    this.sound = new SoundController();
+
   }
   resize(newWidth: number, newHeight: number): void {
     this.width = newWidth;
@@ -434,6 +438,7 @@ class Game {
     } else {
       this.ammoTimer += deltaTime;
     }
+    this.shield.update(deltaTime);
     this.particles.forEach(particle => particle.update());
     this.particles = this.particles.filter(particle => !particle.markedForDeletion);
     this.explosions.forEach(explosion => explosion.update(deltaTime));
@@ -444,6 +449,7 @@ class Game {
         enemy.markedForDeletion = true;
         this.addExplosion(enemy);
         this.sound.hit();
+        this.shield.reset();
         for (let i = 0; i < enemy.score; i++) {
           this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
         }
@@ -490,6 +496,7 @@ class Game {
     this.background.draw(context);
     this.ui.draw(context);
     this.player.draw(context);
+    this.shield.draw(context);
     this.particles.forEach(particle => particle.draw(context));
     this.enemies.forEach(enemy => {
       enemy.draw(context);
