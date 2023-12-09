@@ -526,7 +526,8 @@ class Game {
     const randomize = this.randomize;
     this.randomize = Math.random();
     if (randomize < 0.1) this.enemies.push(new Angler1(this)); //Cantidad Angler1
-    else if (randomize < 0.3) this.enemies.push(new Stalker(this));//Cantidad Angler2
+    else if (randomize < 0.3) this.enemies.push(new Stalker(this));
+    else if (randomize < 0.5) this.enemies.push(new Razorfin(this));//Cantidad Angler2
     else if (randomize < 0.6) this.enemies.push(new Angler2(this));//Cantidad Angler2
     else if (randomize < 0.7) this.enemies.push(new HiveWhale(this));
     else if (randomize < 0.8) this.enemies.push(new BulbWhale(this));//Cantidad HiveWhale
