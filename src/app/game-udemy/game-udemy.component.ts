@@ -135,8 +135,45 @@ class SoundController {
     this.shieldSound.play();
   }
 }
-
 class Shield {
+  game: Game;
+  width: number;
+  height: number;
+  frameX: number;
+  maxFrame: number;
+  image: HTMLElement | null = null;
+  fps: number;
+  timer: number;
+  interval: number;
+  constructor(game: Game) {
+    this.game = game;
+    this.width = this.game.player.width;
+    this.height = this.game.player.height;
+    this.frameX = 0;
+    this.maxFrame = 24;
+    this.image = document.getElementById('shield');
+    this.fps = 60;
+    this.timer = 0;
+    this.interval = 1000 / this.fps;
+  }
+  update(deltaTime: number) {
+    if (this.frameX <= this.maxFrame) {
+      if (this.timer > this.interval) {
+        this.frameX++;
+        this.timer = 0;
+      } else {
+        this.timer += deltaTime;
+      }
+    }
+  }
+  draw(context: any) {
+    context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height,
+      this.game.player.x, this.game.player.y, this.width, this.height);
+  }
+  reset() {
+    this.frameX = 0;
+    this.game.sound.shield();
+  }
 }
 
 class Projectile {
@@ -406,6 +443,7 @@ class Game {
       if (this.checkCollision(this.player, enemy)) {
         enemy.markedForDeletion = true;
         this.addExplosion(enemy);
+        this.sound.hit();
         for (let i = 0; i < enemy.score; i++) {
           this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
         }
@@ -426,6 +464,7 @@ class Game {
             }
             enemy.markedForDeletion = true;
             this.addExplosion(enemy);
+            this.sound.explosion();
             if (enemy.type === 'moon') this.player.enterPowerUp();
             if (enemy.type === 'hive') {//Eliminamos 1hive creamos 5 Drone
               for (let i = 0; i < 5; i++) {
