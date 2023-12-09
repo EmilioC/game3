@@ -309,6 +309,7 @@ class Player {
       this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
       this.game.ammo--;
     }
+    this.game.sound.shot();
     if (this.powerUp) this.shootBottom();
   }
   shootBottom() {// class Player
