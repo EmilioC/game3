@@ -50,11 +50,6 @@ class InputHandler {
     }
   }
 
-  shoot() {
-    // Simula presionar la tecla ' '
-    this.game.player.shootTop();
-  }
-
   // Método para simular soltar el botón de subir
   stopMoveUp() {
     const index = this.game.keys.indexOf('ArrowUp');
@@ -68,6 +63,42 @@ class InputHandler {
     const index = this.game.keys.indexOf('ArrowDown');
     if (index > -1) {
       this.game.keys.splice(index, 1);
+    }
+  }
+
+  /*   shoot() {
+      // Simula presionar la tecla ' '
+      this.game.player.shootTop();
+    } */
+  private shootingInterval: any;
+
+  shoot() {
+    this.startShooting();
+    // Añadir eventos 'mouseup' y 'touchend' al objeto document.
+    document.addEventListener('mouseup', this.stopShootingBound);
+    document.addEventListener('touchend', this.stopShootingBound);
+  }
+
+  private stopShootingBound = () => {
+    this.stopShooting();
+    // Remover los oyentes de eventos después de que se disparen.
+    document.removeEventListener('mouseup', this.stopShootingBound);
+    document.removeEventListener('touchend', this.stopShootingBound);
+  };
+
+
+  private startShooting() {
+    if (!this.shootingInterval) {
+      this.shootingInterval = setInterval(() => {
+        this.game.player.shootTop();
+      }, 100); // La frecuencia de disparo, 100ms en este ejemplo
+    }
+  }
+
+  private stopShooting() {
+    if (this.shootingInterval) {
+      clearInterval(this.shootingInterval);
+      this.shootingInterval = null;
     }
   }
 }
@@ -380,36 +411,38 @@ class Player {
   }
 }
 class Game {
-  width: number;
-  height: number;
-  background: Background;
-  player: Player;
-  keys: string[];   // Add this line to include keys array
-  debug: boolean;
-  ammo: number;
-  maxAmmo: number;
-  ammoTimer: number;
-  ammoInterval: number;
-  ui: UI;
-  enemies: any[];
-  particles: Particle[];
-  explosions: Explosion[];
-  shield: Shield;
-  enemyTimer: number;
-  enemyInterval: number;
-  gameOver: boolean;
-  public y?: number;
-  public x?: number;
-  score: number;
-  winningScore: number;
-  gameTime: number;
-  timeLimit: number;
-  speed: number;
-  layer1: HTMLImageElement;
-  public randomize: number;
+  // Propiedades básicas del juego, como dimensiones, elementos de juego y estado.
+  width: number;  // Ancho del área de juego.
+  height: number; // Altura del área de juego.
+  background: Background; // Fondo del juego.
+  player: Player; // Objeto del jugador.
+  keys: string[] = []; // Array para almacenar las teclas presionadas.
+  debug: boolean; // Bandera para el modo de depuración.
+  ammo: number; // Contador de munición del jugador.
+  maxAmmo: number; // Máxima munición disponible.
+  ammoTimer: number; // Temporizador para recarga de munición.
+  ammoInterval: number; // Intervalo para recargar munición.
+  ui: UI; // Interfaz de usuario.
+  enemies: any[]; // Array de enemigos.
+  particles: Particle[]; // Partículas (por ejemplo, para efectos visuales).
+  explosions: Explosion[]; // Explosiones.
+  shield: Shield; // Escudo del jugador.
+  enemyTimer: number; // Temporizador para generar enemigos.
+  enemyInterval: number; // Intervalo entre la generación de enemigos.
+  gameOver: boolean; // Estado de finalización del juego.
+  public y?: number; // Posible posición Y (usado en explosiones).
+  public x?: number; // Posible posición X (usado en explosiones).
+  score: number; // Puntuación del jugador.
+  winningScore: number; // Puntuación para ganar el juego.
+  gameTime: number; // Tiempo de juego transcurrido.
+  timeLimit: number; // Límite de tiempo del juego.
+  speed: number; // Velocidad global del juego, afecta a varios elementos.
+  layer1: HTMLImageElement; // Capa del fondo.
+  public randomize: number; // Variable para la generación aleatoria de enemigos.
 
-  explosion: Explosion;
-  sound: SoundController;
+
+  explosion: Explosion; // Objeto de explosión.
+  sound: SoundController; // Controlador de sonidos.
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
@@ -440,13 +473,17 @@ class Game {
     this.explosions = [];
 
   }
+
   resize(newWidth: number, newHeight: number): void {
+    // resize: Ajusta las dimensiones del juego, útil para responsividad.
     this.width = newWidth;
     this.height = newHeight;
   }
   update(deltaTime: number) { // class Game
+    // update: Actualiza el estado del juego en cada frame.
     if (!this.gameOver) this.gameTime += deltaTime;
     if (this.gameTime > this.timeLimit) this.gameOver = true;
+    // Actualiza el estado de los componentes del juego.
     this.background.update();
     this.player.update(deltaTime);
     if (this.ammoTimer > this.ammoInterval) {
@@ -525,7 +562,10 @@ class Game {
   addEnemy() {
     const randomize = this.randomize;
     this.randomize = Math.random();
-    if (randomize < 0.1) this.enemies.push(new Angler1(this)); //Cantidad Angler1
+    if (randomize < 0.1) this.enemies.push(new Angler1(this));
+    /* El siguiente if añade enemigos de tipo Staker al array de enmies.Si modificamos
+    y decrementamos el número de la comparación con radomize aumentará el número de
+    enemies de la clase Razonfin, yaque el el número randomize oscila entre 0 y 1 */
     else if (randomize < 0.3) this.enemies.push(new Stalker(this));
     else if (randomize < 0.5) this.enemies.push(new Razorfin(this));//Cantidad Angler2
     else if (randomize < 0.6) this.enemies.push(new Angler2(this));//Cantidad Angler2
@@ -548,6 +588,8 @@ class Game {
     } */
   }
   checkCollision(rect1: any, rect2: any) { // class Game
+    // Lógica para manejo de colisiones y generación de enemigos.
+    // checkCollision: Determina si dos objetos colisionan.
     return (
       rect1.x < rect2.x + rect2.width &&
       rect1.x + rect1.width > rect2.x &&
@@ -920,12 +962,13 @@ export class game_udemy implements AfterViewInit {
   get gameRandomize(): number {
     return this.game ? this.game.randomize : 0;
   }
+  public inputHandler!: InputHandler;
 
   @ViewChild('canvas1') canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx: CanvasRenderingContext2D | null = null;
   private game!: Game;
   private animationFrameId!: number;
-  private inputHandler!: InputHandler;
+  // public inputHandler!: InputHandler;
   private lastTime: number = 0;
 
 

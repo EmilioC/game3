@@ -1,6 +1,6 @@
 <canvas #canvas1></canvas>
 <!-- characters -->
-<img id="player" src="assets/player.png">
+<img id="player" src="assets/player.png"> <!-- 4680x380 -->
 <img id="angler1" src="assets/angler1.png">
 <img id="angler2" src="assets/angler2.png">
 <img id="lucky" src="assets/lucky.png">
@@ -37,5 +37,8 @@
     <button type="button" class="btn btn-outline-warning btn-block" id="moveUp">Parriba</button>
     <button type="button" class="btn btn-outline-warning btn-block" id="moveDown">Pabajo</button>
   </div>
-  <button type="button" class="btn btn-outline-danger btn-block" id="shoot">Disparo {{gameRandomize}}</button>
+  <!--   <button type="button" class="btn btn-outline-danger btn-block" id="shoot">Disparo {{gameRandomize}}</button>
+   --> <button type="button" class="btn btn-outline-danger btn-block" id="shoot" (mousedown)="inputHandler.shoot()"
+    (touchstart)="inputHandler.shoot()">Disparo</button>
+
 </div>
