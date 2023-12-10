@@ -481,58 +481,93 @@ class Game {
   }
   update(deltaTime: number) { // class Game
     // update: Actualiza el estado del juego en cada frame.
+    // deltaTime: Tiempo transcurrido desde el último frame, usado para sincronizar movimientos.
+
+    // Incrementa el tiempo de juego si el juego aún no ha terminado.
     if (!this.gameOver) this.gameTime += deltaTime;
+
+    // Verifica si el tiempo de juego ha superado el límite de tiempo. Si es así, termina el juego.
     if (this.gameTime > this.timeLimit) this.gameOver = true;
     // Actualiza el estado de los componentes del juego.
+
+    // Actualiza el fondo del juego para que pueda cambiar o moverse con el tiempo.
     this.background.update();
+
+    // Actualiza la posición y estado del jugador basándose en el tiempo transcurrido.
     this.player.update(deltaTime);
+
+    // Gestiona la recarga de munición del jugador.
     if (this.ammoTimer > this.ammoInterval) {
-      if (this.ammo < this.maxAmmo) this.ammo++;
-      this.ammoTimer = 0;
+      // Si el temporizador de munición supera el intervalo establecido, recarga la munición.
+      if (this.ammo < this.maxAmmo) this.ammo++; // Asegura no superar la munición máxima.
+      this.ammoTimer = 0; // Reinicia el temporizador de munición.
     } else {
+      // Si aún no se alcanza el intervalo, incrementa el temporizador de munición.
       this.ammoTimer += deltaTime;
     }
+    // Actualiza el estado del escudo del jugador.
     this.shield.update(deltaTime);
-    this.particles.forEach(particle => particle.update());
+
+    // Actualiza y filtra las partículas activas en el juego.
+    this.particles.forEach(particle => particle.update()); // Actualiza cada partícula.
+    // Remueve las partículas marcadas para eliminación.
     this.particles = this.particles.filter(particle => !particle.markedForDeletion);
-    this.explosions.forEach(explosion => explosion.update(deltaTime));
-    this.explosions = this.explosions.filter(explosion => !this.explosion.markedForDeletion);
+
+    // Actualiza y filtra las explosiones activas en el juego.
+    this.explosions.forEach(explosion => explosion.update(deltaTime)); // Actualiza cada explosión.
+    // Remueve las explosiones que ya no son necesarias.
+    this.explosions = this.explosions.filter(explosion => !explosion.markedForDeletion);
+
+    // Actualiza los enemigos y maneja las colisiones con el jugador.
     this.enemies.forEach(enemy => {
-      enemy.update();
+      enemy.update(); // Actualiza el estado y posición del enemigo.
+
+      // Verifica colisiones entre el jugador y los enemigos.
       if (this.checkCollision(this.player, enemy)) {
-        enemy.markedForDeletion = true;
-        this.addExplosion(enemy);
-        this.sound.hit();
-        this.shield.reset();
+        enemy.markedForDeletion = true; // Marca el enemigo para eliminación.
+        this.addExplosion(enemy); // Crea una explosión en la posición del enemigo.
+        this.sound.hit(); // Reproduce un sonido de impacto.
+        this.shield.reset(); // Reinicia el estado del escudo.
+
+        // Crea nuevas partículas en la posición del enemigo para efectos visuales.
         for (let i = 0; i < enemy.score; i++) {
           this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
         }
-        if (enemy.type === 'lucky') this.player.enterPowerUp();
-        else if (!this.gameOver) this.score--;
+        // Comprueba si el enemigo tiene un efecto especial al ser destruido.
+        if (enemy.type === 'lucky')
+          this.player.enterPowerUp(); // Activa un power-up para el jugador.
+        this.score--; // Reduce la puntuación si el jugador choca con un enemigo.
       }
       // Eliminación enemy por disparo
+      // Itera sobre cada proyectil disparado por el jugador.
       this.player.projectiles.forEach(projectile => {
+        // Comprueba si el proyectil ha colisionado con algún enemigo.
         if (this.checkCollision(projectile, enemy)) {
-          enemy.lives--;
-          projectile.markedForDeletion = true;
-          this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5,
-            enemy.y + enemy.height * 0.5));
+          enemy.lives--; // Reduce la vida del enemigo impactado.
+          projectile.markedForDeletion = true; // Marca el proyectil para ser eliminado.
+          // Crea una partícula en la posición de impacto para efectos visuales.
+          this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
+          // Si el enemigo ya no tiene vidas, se procede a su eliminación.
           if (enemy.lives <= 0) {
+            // Crea partículas adicionales en la posición del enemigo para una mayor explosión visual.
             for (let i = 0; i < enemy.score; i++) {
-              this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5,
-                enemy.y + enemy.height * 0.5));
+              this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
             }
-            enemy.markedForDeletion = true;
-            this.addExplosion(enemy);
-            this.sound.explosion();
-            if (enemy.type === 'moon') this.player.enterPowerUp();
-            if (enemy.type === 'hive') {//Eliminamos 1hive creamos 5 Drone
+            enemy.markedForDeletion = true; // Marca el enemigo para ser eliminado.
+            this.addExplosion(enemy); // Añade una explosión en la posición del enemigo.
+            this.sound.explosion(); // Reproduce un sonido de explosión.
+
+            // Si el enemigo tiene un tipo especial, se activan efectos adicionales.
+            if (enemy.type === 'moon') {
+              this.player.enterPowerUp(); // Activa un power-up para el jugador.
+            }
+            if (enemy.type === 'hive') {
+              // En el caso de enemigos tipo 'hive', crea varios enemigos más pequeños (drones).
               for (let i = 0; i < 5; i++) {
-                this.enemies.push(new Drone(this, enemy.x + Math.random() *
-                  enemy.width, enemy.y + Math.random() * enemy.height * 0.5));
+                this.enemies.push(new Drone(this, enemy.x + Math.random() * enemy.width, enemy.y + Math.random() * enemy.height * 0.5));
               }
             }
-            if (!this.gameOver) this.score += enemy.score;
+            if (!this.gameOver) this.score += enemy.score;// Aumenta la puntuación del jugador.
             //if (this.score > this.winningScore) this.gameOver = true;
           }
         }
