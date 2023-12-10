@@ -3,104 +3,229 @@ import { CommonModule } from '@angular/common';
 import { Images } from '../gif/interfaces/gifs.interfaces';
 
 class InputHandler {
-  game: Game;
-  keydown: (event: KeyboardEvent) => void;
-  keyup: (event: KeyboardEvent) => void;
+  // InputHandler: Clase para gestionar las entradas de teclado en el juego.
+
+  game: Game; // Referencia a la instancia del juego.
+  keydown: (event: KeyboardEvent) => void; // Función para manejar eventos de tecla presionada.
+  keyup: (event: KeyboardEvent) => void; // Función para manejar eventos de tecla liberada.
 
   constructor(game: Game) {
+    // Constructor: Inicializa el manejador de entrada con la instancia del juego.
     this.game = game;
+    // Define la lógica para el evento de tecla presionada.
     this.keydown = (event: KeyboardEvent) => {
+      // Verifica si las teclas de flecha Arriba o Abajo son presionadas.
       if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && this.game.keys.indexOf(event.key) === -1) {
+        // Si la tecla no está en el array de teclas activas, la añade.
         this.game.keys.push(event.key);
       } else if (event.key === ' ') {
+        // Si se presiona la barra espaciadora, activa el método de disparo del jugador.
         this.game.player.shootTop();
       } else if (event.key === 'd') {
+        // Si se presiona la tecla 'd', activa o desactiva el modo de depuración.
         this.game.debug = !this.game.debug;
       }
     };
-
+    // Define la lógica para el evento de tecla liberada.
     this.keyup = (event: KeyboardEvent) => {
+      // Encuentra el índice de la tecla en el array de teclas activas.
       const keyIndex = this.game.keys.indexOf(event.key);
       if (keyIndex > -1) {
+        // Si la tecla está en el array, la elimina.
+        // Esto indica que la tecla ya no está siendo presionada.
         this.game.keys.splice(keyIndex, 1);
       }
     };
-
+    // Añade los manejadores de eventos al objeto 'window' para escuchar las teclas presionadas y liberadas.
     window.addEventListener('keydown', this.keydown);
     window.addEventListener('keyup', this.keyup);
   }
-
   destroy() {
-    window.removeEventListener('keydown', this.keydown);
-    window.removeEventListener('keyup', this.keyup);
-  }
+    // Método destroy: Limpia los manejadores de eventos cuando la instancia de InputHandler ya no es necesaria.
 
+    // Remueve el manejador de eventos para 'keydown'.Esto evita que el método keydown de esta instancia siga recibiendo eventos
+    // de teclas presionadas incluso después de que la instancia se haya destruido o no sea necesaria.
+    window.removeEventListener('keydown', this.keydown);
+
+    // Remueve el manejador de eventos para 'keyup'.Similar al caso de 'keydown', esto evita que el método keyup siga recibiendo eventos
+    // de teclas liberadas después de que la instancia de InputHandler haya sido desechada.
+    window.removeEventListener('keyup', this.keyup);
+
+    // La limpieza de los oyentes de eventos es importante para la gestión de recursos y la prevención de fugas de memoria,
+    // especialmente en aplicaciones web donde se pueden crear y destruir múltiples instancias durante el ciclo de vida de la aplicación.
+  }
   // Métodos para botones móviles
+
   moveUp() {
-    // Simula presionar la tecla 'ArrowUp'
+    // Método moveUp: Gestiona la acción de moverse hacia arriba en un dispositivo móvil.
+
+    // Este método simula la acción de presionar la tecla 'ArrowUp' en un teclado.
+    // Es útil para dispositivos móviles donde el teclado físico no está disponible.
+
+    // Comprueba si la tecla 'ArrowUp' ya está registrada en el array de teclas activas.
+    // Esto evita añadir múltiples veces la misma tecla si el botón se mantiene presionado.
     if (this.game.keys.indexOf('ArrowUp') === -1) {
+      // Si 'ArrowUp' no está en el array, la añade.
+      // Esto indica al juego que el jugador está intentando moverse hacia arriba.
       this.game.keys.push('ArrowUp');
     }
+
+    // Al llamar a este método, el juego responderá como si el usuario hubiera presionado la tecla de flecha hacia arriba.
+    // Esto puede incluir mover el personaje del jugador hacia arriba o realizar cualquier acción asociada con esa tecla.
   }
 
   moveDown() {
-    // Simula presionar la tecla 'ArrowDown'
+    // Método moveDown: Gestiona la acción de moverse hacia abajo en un dispositivo móvil.
+
+    // Este método simula la acción de presionar la tecla 'ArrowDown' en un teclado.
+    // Es especialmente útil para dispositivos móviles que no disponen de un teclado físico.
+
+    // Verifica si la tecla 'ArrowDown' ya está incluida en el array de teclas activas.
+    // Esto previene la adición repetida de la misma tecla si el botón se mantiene presionado en la interfaz móvil.
     if (this.game.keys.indexOf('ArrowDown') === -1) {
+      // Si 'ArrowDown' no está presente en el array, la añade.
+      // Al añadirla, se indica al juego que el jugador está intentando moverse hacia abajo.
       this.game.keys.push('ArrowDown');
     }
-  }
 
-  // Método para simular soltar el botón de subir
+    // Al ejecutar este método, el juego interpreta que el usuario desea mover el personaje hacia abajo o realizar
+    // cualquier otra acción mapeada a la tecla de flecha hacia abajo, similar a cómo respondería con un teclado físico.
+  }
   stopMoveUp() {
+    // Método stopMoveUp: Gestiona el cese de la acción de moverse hacia arriba en un dispositivo móvil.
+
+    // Este método se utiliza para simular la acción de dejar de presionar la tecla 'ArrowUp' en un teclado.
+    // Es importante para dispositivos móviles donde se utilizan botones en pantalla en lugar de un teclado físico.
+
+    // Primero, busca el índice de la tecla 'ArrowUp' en el array de teclas activas del juego.
     const index = this.game.keys.indexOf('ArrowUp');
+
+    // Verifica si la tecla 'ArrowUp' se encuentra en el array.
+    // Un índice mayor que -1 indica que la tecla está presente y activa.
     if (index > -1) {
+      // Si la tecla está presente, la elimina del array.
+      // Esto simula la acción de dejar de presionar la tecla 'ArrowUp'.
+      // Como resultado, el juego dejará de mover al jugador hacia arriba.
       this.game.keys.splice(index, 1);
     }
-  }
 
+    // Este método es crucial para controlar el movimiento del jugador en dispositivos móviles.
+    // Permite un control más preciso y evita que el personaje continúe moviéndose indefinidamente hacia arriba
+    // después de que el usuario deje de presionar el botón de movimiento hacia arriba en la pantalla.
+  }
   // Método para simular soltar el botón de bajar
   stopMoveDown() {
+    // Método stopMoveDown: Gestiona la finalización de la acción de moverse hacia abajo en un dispositivo móvil.
+
+    // Similar al método stopMoveUp, pero para la dirección opuesta.
+
+    // Primero, busca el índice de la tecla 'ArrowDown' en el array de teclas activas del juego.
+    // 'ArrowDown' corresponde a la acción de moverse hacia abajo.
     const index = this.game.keys.indexOf('ArrowDown');
+
+    // Verifica si la tecla 'ArrowDown' está actualmente en el array de teclas activas.
+    // Un índice mayor que -1 indica que la tecla se encuentra en el array.
     if (index > -1) {
+      // Si la tecla está en el array, la elimina.
+      // Esto simula la acción de dejar de presionar la tecla 'ArrowDown'.
+      // Como resultado, el juego dejará de mover al jugador hacia abajo.
       this.game.keys.splice(index, 1);
     }
-  }
 
-  /*   shoot() {
-      // Simula presionar la tecla ' '
-      this.game.player.shootTop();
-    } */
-  private shootingInterval: any;
+    // Este método es fundamental para un control de movimiento fluido y preciso en dispositivos móviles.
+    // Permite al jugador detener el movimiento hacia abajo de manera eficaz, evitando que el personaje
+    // siga desplazándose hacia abajo después de que el usuario haya dejado de presionar el botón correspondiente.
+  }
+  private shootingInterval: any; // Propiedad para almacenar el intervalo de disparo.
 
   shoot() {
+    // Método shoot: Gestiona la lógica de disparo continuo en el juego.
+
+    // Inicia la secuencia de disparo.
     this.startShooting();
-    // Añadir eventos 'mouseup' y 'touchend' al objeto document.
+
+    // Añade manejadores de eventos para 'mouseup' y 'touchend' al documento.
+    // Esto permite detener el disparo cuando el usuario suelta el botón de disparo o levanta el dedo en un dispositivo táctil.
+
+    // 'mouseup': Se activa cuando el usuario suelta el botón del ratón.
     document.addEventListener('mouseup', this.stopShootingBound);
+
+    // 'touchend': Se activa cuando el usuario deja de tocar la pantalla.
     document.addEventListener('touchend', this.stopShootingBound);
+
+    // Estos eventos son esenciales para permitir un control preciso en diferentes dispositivos,
+    // asegurando que el disparo solo ocurra mientras el usuario mantenga presionado el botón de disparo o la pantalla.
+    // La función 'stopShootingBound' es una versión enlazada del método 'stopShooting' para asegurar
+    // que el contexto correcto de 'this' se mantenga al ser llamado por los manejadores de eventos.
   }
+
+  // Nota: El método 'startShooting' y 'stopShootingBound' no se muestran aquí,
+  // pero se asume que 'startShooting' inicia un intervalo de disparo y 'stopShootingBound'
+  // detiene dicho intervalo, limpiando 'shootingInterval' y removiendo los manejadores de eventos.
 
   private stopShootingBound = () => {
+    // stopShootingBound: Método enlazado que se encarga de detener el disparo y limpiar los oyentes de eventos.
+
+    // Llama al método 'stopShooting' para detener el proceso de disparo.
+    // Este método puede ser responsable de detener un intervalo de disparo o cualquier otra lógica relacionada con el cese del disparo.
     this.stopShooting();
-    // Remover los oyentes de eventos después de que se disparen.
+
+    // Remueve los oyentes de eventos para 'mouseup' y 'touchend' del objeto 'document'.
+    // Esto es crucial para evitar que los eventos sigan siendo escuchados después de que se haya detenido el disparo,
+    // lo que podría llevar a comportamientos inesperados o a la continuación del disparo cuando ya no es deseado.
+
+    // 'mouseup': Evento que se activa cuando se suelta un botón del ratón.
+    // La eliminación de este oyente previene que el método 'stopShootingBound' se ejecute cuando el usuario suelte el botón del ratón en el futuro.
     document.removeEventListener('mouseup', this.stopShootingBound);
+
+    // 'touchend': Evento que se activa cuando se deja de tocar la pantalla.
+    // Similar a 'mouseup', la eliminación de este oyente previene la ejecución no deseada del método en dispositivos táctiles.
     document.removeEventListener('touchend', this.stopShootingBound);
+
+    // La función es una arrow function para mantener correctamente el contexto de 'this'.
+    // Esto es necesario para que 'this' se refiera a la instancia de 'InputHandler' y no al objeto global o al objeto que disparó el evento.
   };
-
-
   private startShooting() {
-    if (!this.shootingInterval) {
-      this.shootingInterval = setInterval(() => {
-        this.game.player.shootTop();
-      }, 100); // La frecuencia de disparo, 100ms en este ejemplo
-    }
-  }
+    // Método startShooting: Inicia el proceso de disparo automático para el jugador.
 
+    // Verifica si ya existe un intervalo de disparo activo.
+    // Esto evita la creación de múltiples intervalos si el método se llama repetidamente,
+    // lo que podría resultar en un disparo más rápido de lo previsto.
+    if (!this.shootingInterval) {
+      // Si no hay un intervalo activo, crea uno nuevo.
+      // 'setInterval' es una función de JavaScript que ejecuta repetidamente una función
+      // o bloque de código con un retraso fijo entre cada ejecución.
+
+      this.shootingInterval = setInterval(() => {
+        // En cada intervalo, llama al método 'shootTop' del jugador.
+        // Esto simula que el jugador está disparando repetidamente.
+        this.game.player.shootTop();
+      }, 100); // El intervalo se establece en 100 milisegundos.
+      // Esto significa que 'shootTop' se llamará cada 100ms, controlando la frecuencia de disparo.
+    }
+    // La elección de 100ms es un balance entre un disparo rápido y uno que no sature el juego.
+    // Puede ajustarse para cambiar la dificultad o la mecánica del juego.
+  }
   private stopShooting() {
+    // Método stopShooting: Se encarga de detener el proceso de disparo automático.
+
+    // Verifica si existe un intervalo de disparo activo.
+    // 'this.shootingInterval' almacena la referencia al intervalo de disparo establecido por 'setInterval' en 'startShooting'.
     if (this.shootingInterval) {
+      // Si hay un intervalo activo, lo detiene.
+      // 'clearInterval' es una función de JavaScript que detiene un intervalo establecido previamente por 'setInterval'.
       clearInterval(this.shootingInterval);
+
+      // Establece 'this.shootingInterval' a null.
+      // Esto limpia la referencia al intervalo y prepara la instancia para un nuevo inicio de disparo si es necesario.
+      // Es una buena práctica de gestión de recursos, asegurando que el intervalo anterior no se mantenga en memoria.
       this.shootingInterval = null;
     }
+    // Este método es crucial para controlar el flujo de disparos en el juego.
+    // Permite detener el disparo cuando el jugador suelta el botón de disparo o realiza otra acción que debería interrumpir el disparo.
+    // La correcta gestión de este método ayuda a prevenir disparos no deseados y mejora la experiencia general del usuario.
   }
+
 }
 
 class SoundController {
@@ -312,102 +437,186 @@ class Particle {
   }
 }
 class Player {
-  game: Game;
-  width: number;
-  height: number;
-  x: number;
-  y: number;
-  frameX: number;
-  frameY: number;
-  maxFrame: number;
-  speedY: number;
-  maxSpeed: number;
-  projectiles: Projectile[];
-  ui: UI;
-  image: HTMLElement;
-  powerUp: boolean;
-  powerUpTimer: number;
-  powerUpLimit: number;
+  // Propiedades de la clase Player que definen las características y estado del jugador.
+
+  game: Game; // Referencia a la instancia del juego, utilizada para interactuar con otros componentes del juego.
+  width: number; // Ancho del sprite del jugador.
+  height: number; // Altura del sprite del jugador.
+  x: number; // Posición en el eje X del jugador en el canvas.
+  y: number; // Posición en el eje Y del jugador en el canvas.
+  frameX: number; // Índice actual del frame en el eje X para animaciones de sprites.
+  frameY: number; // Índice actual del frame en el eje Y para animaciones de sprites.
+  maxFrame: number; // Número máximo de frames para la animación del sprite.
+  speedY: number; // Velocidad de movimiento vertical del jugador.
+  maxSpeed: number; // Velocidad máxima de movimiento del jugador.
+  projectiles: Projectile[]; // Array que almacena los proyectiles disparados por el jugador.
+  ui: UI; // Interfaz de usuario para mostrar información relevante al jugador.
+  image: HTMLElement; // Elemento HTML que representa la imagen o sprite del jugador.
+  powerUp: boolean; // Indica si el jugador tiene un power-up activo.
+  powerUpTimer: number; // Temporizador para la duración del power-up.
+  powerUpLimit: number; // Tiempo límite para la duración del power-up.
 
   constructor(game: Game) {
-    this.game = game;
-    this.width = 120;
-    this.height = 190;
-    this.x = 20;
-    this.y = 100;
-    this.frameX = 0;
-    this.frameY = 0;
-    this.maxFrame = 37;
-    this.speedY = 0;
-    this.maxSpeed = 3;
-    this.projectiles = [];
-    this.ui = new UI(this.game);
-    this.image = document.getElementById('player')!;
-    this.powerUp = false;
-    this.powerUpTimer = 0;
-    this.powerUpLimit = 10000;
+    // Constructor de la clase Player: inicializa las propiedades.
+    this.game = game; // Establece la referencia al juego.
+    this.width = 120; // Establece el ancho del sprite.
+    this.height = 190; // Establece la altura del sprite.
+    this.x = 20; // Posición inicial en el eje X.
+    this.y = 100; // Posición inicial en el eje Y.
+    this.frameX = 0; // Inicia en el primer frame para la animación.
+    this.frameY = 0; // Inicia en el primer frame para la animación.
+    this.maxFrame = 37; // Establece el número máximo de frames para la animación.
+    this.speedY = 0; // Inicia sin movimiento vertical.
+    this.maxSpeed = 3; // Establece la velocidad máxima de movimiento.
+    this.projectiles = []; // Inicializa el array de proyectiles.
+    this.ui = new UI(this.game); // Inicializa la interfaz de usuario.
+    this.image = document.getElementById('player')!; // Obtiene el sprite del jugador.
+    this.powerUp = false; // Inicia sin power-up.
+    this.powerUpTimer = 0; // Inicia el temporizador del power-up en 0.
+    this.powerUpLimit = 10000; // Establece el límite del power-up en 10000 ms (10 segundos).
   }
-  update(deltaTime: number) {//class Player
-    if (this.game.keys.includes('ArrowUp')) this.speedY = -this.maxSpeed;
-    else if (this.game.keys.includes('ArrowDown')) this.speedY = this.maxSpeed;
-    else this.speedY = 0;
+  update(deltaTime: number) { // Método de la clase Player para actualizar su estado en cada frame.
+
+    // Controla el movimiento vertical del jugador basándose en las teclas presionadas.
+    if (this.game.keys.includes('ArrowUp')) {
+      // Si la tecla 'ArrowUp' está presionada, mueve el jugador hacia arriba.
+      this.speedY = -this.maxSpeed;
+    } else if (this.game.keys.includes('ArrowDown')) {
+      // Si la tecla 'ArrowDown' está presionada, mueve el jugador hacia abajo.
+      this.speedY = this.maxSpeed;
+    } else {
+      // Si ninguna tecla de movimiento está presionada, detiene el movimiento vertical.
+      this.speedY = 0;
+    }
+    // Actualiza la posición Y del jugador basándose en su velocidad.
     this.y += this.speedY;
+
     // vertical boundaries
-    if (this.y > this.game.height - this.height * 0.5) this.y = this.game.height - this.height * 0.5;
-    else if (this.y < -this.height * 0.5) this.y = -this.height * 0.5;
-    // handle projectiles
+    // Controla los límites verticales para evitar que el jugador salga del área de juego.
+    if (this.y > this.game.height - this.height * 0.5) {
+      // Impide que el jugador se mueva más allá del borde inferior del juego.
+      this.y = this.game.height - this.height * 0.5;
+    } else if (this.y < -this.height * 0.5) {
+      // Impide que el jugador se mueva más allá del borde superior del juego.
+      this.y = -this.height * 0.5;
+    }
+    // Actualiza todos los proyectiles disparados por el jugador.
     this.projectiles.forEach(projectile => {
       projectile.update(deltaTime);
-    })
+    });
+    // Elimina los proyectiles que han sido marcados para eliminación.
     this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
-    //sprite
+    // Gestiona la animación del sprite del jugador.
     if (this.frameX < this.maxFrame) {
+      // Avanza al siguiente frame de la animación.
       this.frameX++;
     } else {
+      // Reinicia la animación al primer frame.
       this.frameX = 0;
     }
-    // power up
+    // Gestiona los power-ups del jugador.
     if (this.powerUp) {
+      // Si el jugador tiene un power-up activo, actualiza el temporizador del power-up.
       if (this.powerUpTimer > this.powerUpLimit) {
+        // Si el temporizador del power-up supera el límite, desactiva el power-up.
         this.powerUpTimer = 0;
         this.powerUp = false;
-        this.frameY = 0;
-        this.game.sound.powerDown();
+        this.frameY = 0; // Restablece el frame Y para la animación normal.
+        this.game.sound.powerDown(); // Reproduce el sonido de desactivación del power-up.
       } else {
+        // Si el power-up aún está activo, incrementa el temporizador.
         this.powerUpTimer += deltaTime;
-        this.frameY = 1;
-        this.game.ammo += 0.1;
+        this.frameY = 1; // Cambia a un frame Y específico para mostrar el power-up.
+        this.game.ammo += 0.1; // Aumenta gradualmente la munición del jugador.
       }
     }
   }
-  draw(context: any) { //class Player
-    if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
-    this.projectiles.forEach(projectile => {
-      projectile.draw(context);
-    });
-    context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height,
-      this.width, this.height, this.x, this.y, this.width, this.height);
+  draw(context: any) { // Método de la clase Player para dibujar al jugador en el canvas.
+
+    // Modo de depuración: si está activo, dibuja un rectángulo alrededor del jugador.
+    // Esto es útil para visualizar el área de colisión del jugador durante el desarrollo del juego.
+    if (this.game.debug) {
+      context.strokeRect(this.x, this.y, this.width, this.height);
+    }
+    // Dibuja todos los proyectiles disparados por el jugador.
+    // Itera sobre el array de proyectiles y llama al método 'draw' de cada proyectil.
+    this.projectiles.forEach(projectile => { projectile.draw(context); });
+    // Dibuja el sprite del jugador en el canvas.
+    // 'drawImage' es un método de Canvas API que dibuja una imagen, lienzo o video en el canvas.
+    context.drawImage(
+      this.image, // La imagen (sprite) del jugador.
+      this.frameX * this.width, // La posición X del frame a dibujar desde la imagen del sprite.
+      this.frameY * this.height, // La posición Y del frame a dibujar desde la imagen del sprite.
+      this.width, // Ancho del frame del sprite a dibujar.
+      this.height, // Altura del frame del sprite a dibujar.
+      this.x, // Posición X en el canvas donde se dibujará la imagen.
+      this.y, // Posición Y en el canvas donde se dibujará la imagen.
+      this.width, // Ancho con el que se dibujará la imagen en el canvas.
+      this.height // Altura con la que se dibujará la imagen en el canvas.
+    );
   }
   shootTop() {
+    // Método shootTop: Se encarga de gestionar el disparo de proyectiles por parte del jugador.
+
+    // Comprueba si el jugador tiene munición disponible.
     if (this.game.ammo > 0) {
-      //this.x y this.y controlamos desde donde sale el disparo desde el objeto
+      // Si hay munición, crea y añade un nuevo proyectil al array de proyectiles.
+      // Calcula la posición inicial del proyectil en relación con la posición del jugador.
+      // this.x + 80 y this.y + 30 determinan el punto de origen del proyectil.
       this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
+      // Decrementa la munición disponible después de disparar.
       this.game.ammo--;
     }
+    // Reproduce un sonido de disparo, independientemente de si se ha disparado un proyectil o no.
+    // Esto añade realismo y retroalimentación auditiva para el jugador.
     this.game.sound.shot();
-    if (this.powerUp) this.shootBottom();
-  }
-  shootBottom() {// class Player
-    if (this.game.ammo > 0) {
-      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 175));
+
+    // Comprueba si el jugador tiene un power-up activo.
+    // Si es así, activa un disparo adicional en la dirección opuesta.
+    if (this.powerUp) {
+      this.shootBottom();
     }
   }
-  enterPowerUp() {
-    this.powerUpTimer = 0;
-    this.powerUp = true;
-    if (this.game.ammo < this.game.maxAmmo) this.game.ammo = this.game.maxAmmo;
-    this.game.sound.powerUp();
+  shootBottom() {
+    // Método shootBottom: Se encarga de gestionar el disparo de proyectiles hacia abajo por parte del jugador.
 
+    // Comprueba si el jugador tiene munición disponible.
+    if (this.game.ammo > 0) {
+      // Si hay munición, crea y añade un nuevo proyectil al array de proyectiles.
+
+      // Calcula la posición inicial del proyectil en relación con la posición del jugador.
+      // 'this.x + 80' y 'this.y + 175' determinan el punto de origen del proyectil.
+      // Este proyectil se dispara desde una posición más baja en comparación con 'shootTop',
+      // lo que implica que este disparo va dirigido hacia abajo o hacia una posición más baja.
+      this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 175));
+
+      // Nota: No hay decremento de munición en este método. Esto sugiere que este disparo
+      // es parte de un power-up o habilidad especial que no consume munición adicional.
+    }
+    // Este método no incluye reproducción de sonido como en 'shootTop', lo que podría
+    // indicar que 'shootBottom' es un disparo secundario o especial.
+  }
+  enterPowerUp() {
+    // Método enterPowerUp: Activa un power-up (mejora temporal) para el jugador.
+
+    // Reinicia el temporizador del power-up a 0.
+    // Esto prepara el temporizador para contar la duración del power-up desde el principio.
+    this.powerUpTimer = 0;
+
+    // Activa el estado de power-up.
+    // Esta bandera booleana indica que el jugador actualmente tiene un power-up activo.
+    this.powerUp = true;
+
+    // Comprueba si la munición actual del jugador es menor que la máxima permitida.
+    if (this.game.ammo < this.game.maxAmmo) {
+      // Si es menor, rellena la munición del jugador al máximo.
+      // Esto es un beneficio común en los power-ups, proporcionando al jugador munición completa.
+      this.game.ammo = this.game.maxAmmo;
+    }
+
+    // Reproduce un sonido específico para indicar que se ha activado un power-up.
+    // Este efecto sonoro ayuda a proporcionar retroalimentación audible de que el power-up está en efecto.
+    this.game.sound.powerUp();
   }
 }
 class Game {
