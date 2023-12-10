@@ -333,50 +333,94 @@ class Shield {
 }
 
 class Projectile {
-  game: Game;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  speed: number;
-  markedForDeletion = false;
-  image: HTMLElement | null = null;
-  frameX: number;
-  maxFrame: number;
-  timer: number;
-  fps: number;
-  interval: number;
+  // La clase Projectile define las características y comportamientos de los proyectiles disparados en el juego.
+
+  game: Game; // Referencia al objeto principal del juego.
+  x: number; // Posición horizontal del proyectil.
+  y: number; // Posición vertical del proyectil.
+  width: number; // Ancho del proyectil.
+  height: number; // Altura del proyectil.
+  speed: number; // Velocidad de desplazamiento del proyectil.
+  markedForDeletion: boolean; // Indica si el proyectil debe ser eliminado.
+  image: HTMLElement | null; // Elemento de imagen del proyectil.
+  frameX: number; // Índice de frame actual en la animación del proyectil.
+  maxFrame: number; // Número máximo de frames en la animación.
+  timer: number; // Temporizador para controlar la animación.
+  fps: number; // Frames por segundo en la animación.
+  interval: number; // Intervalo de tiempo entre frames.
 
   constructor(game: Game, x: number, y: number) {
+    // Constructor inicializa el proyectil con los valores proporcionados y valores por defecto.
     this.game = game;
     this.x = x;
     this.y = y;
     this.width = 36.25;
     this.height = 20;
-    this.speed = Math.random() * 0.2 + 2.8;
+    this.speed = Math.random() * 0.2 + 2.8; // Velocidad aleatoria para variación.
     this.markedForDeletion = false;
-    this.image = document.getElementById('fireball');
+    this.image = document.getElementById('fireball'); // Obtiene la imagen de la bola de fuego.
     this.frameX = 0;
-    this.maxFrame = 3;
+    this.maxFrame = 3; // La animación consta de 4 frames (0 a 3).
     this.timer = 0;
-    this.fps = 20;
-    this.interval = 1000 / this.fps;
+    this.fps = 20; // La animación se reproduce a 20fps.
+    this.interval = 1000 / this.fps; // Calcula el intervalo entre frames.
   }
   update(deltaTime: number) {
+    // Método update: Se encarga de actualizar el estado del proyectil en cada frame del juego.
+
+    // Mueve el proyectil a lo largo del eje X.
+    // Incrementa la posición X del proyectil por su velocidad, haciendo que se desplace hacia la derecha en cada frame.
     this.x += this.speed;
+
+    // Gestión de la animación del proyectil.
+    // El temporizador controla el cambio entre los frames de la animación para crear un efecto visual fluido.
     if (this.timer > this.interval) {
-      if (this.frameX < this.maxFrame) this.frameX++;
-      else this.frameX = 0;
+      // Si el temporizador supera el intervalo establecido, cambia al siguiente frame de la animación.
+      if (this.frameX < this.maxFrame) {
+        // Incrementa 'frameX' para pasar al siguiente frame de la animación.
+        this.frameX++;
+      } else {
+        // Si 'frameX' alcanza el valor de 'maxFrame', lo reinicia a cero para comenzar la animación desde el principio.
+        this.frameX = 0;
+      }
+      // Reinicia el temporizador después de cambiar el frame.
       this.timer = 0;
     } else {
+      // Si el temporizador aún no ha alcanzado el intervalo, lo incrementa por el tiempo transcurrido (deltaTime).
       this.timer += deltaTime;
     }
-    if (this.x > this.game.width * 0.8) this.markedForDeletion = true;
+
+    // Condición para marcar el proyectil para eliminación.
+    // Si el proyectil cruza el 80% del ancho del canvas, se marca para eliminación.
+    // Esto evita que los proyectiles se acumulen fuera de la pantalla visible y optimiza el rendimiento del juego.
+    if (this.x > this.game.width * 0.8) {
+      this.markedForDeletion = true;
+    }
   }
   draw(context: any) {
+    // Método draw: Se encarga de dibujar el proyectil en el canvas del juego.
+
+    // Utiliza 'context.drawImage' para renderizar la imagen del proyectil en el canvas.
+    // Esta función es una parte esencial del método de dibujo en el contexto 2D del canvas HTML.
+
+    // 'this.image' es la imagen del proyectil, previamente cargada y almacenada en esta propiedad.
+
+    // 'this.frameX * this.width' y '0' determinan la posición de inicio para recortar la imagen.
+    // Multiplicar 'frameX' por 'this.width' permite seleccionar el frame correcto en una hoja de sprites,
+    // facilitando la animación del proyectil. '0' indica que el recorte comienza desde el borde superior de la imagen.
+
+    // 'this.width' y 'this.height' especifican el tamaño del recorte de la imagen.
+    // Estos valores determinan la porción de la imagen (sprite) que será utilizada para dibujar un frame de la animación.
+
+    // 'this.x' y 'this.y' son las coordenadas en el canvas donde se dibujará la imagen.
+    // Representan la posición actual del proyectil en el juego.
+
+    // 'this.width' y 'this.height' (los últimos dos parámetros) indican el tamaño con el que se dibujará la imagen en el canvas.
+    // Esto permite escalar la imagen si es necesario, aunque aquí se usa el mismo tamaño del recorte.
     context.drawImage(this.image, this.frameX * this.width, 0, this.width,
       this.height, this.x, this.y, this.width, this.height);
   }
+
 }
 class Particle {
   game: Game;
