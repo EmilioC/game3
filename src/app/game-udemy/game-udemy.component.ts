@@ -726,30 +726,48 @@ class Game {
     this.explosions = [];
 
   }
-
   resize(newWidth: number, newHeight: number): void {
-    // resize: Ajusta las dimensiones del juego, útil para responsividad.
+    // Método resize: Se encarga de ajustar las dimensiones del área de juego.
+
+    // Este método es crucial para mantener la responsividad del juego.
+    // Permite que el juego se adapte a diferentes tamaños de pantalla o cambios en las dimensiones del contenedor del juego.
+    // Es especialmente útil en plataformas donde el tamaño de la ventana puede cambiar,
+    // como en navegadores web en diferentes dispositivos (por ejemplo, móviles, tablets, y ordenadores de escritorio).
+
+    // 'newWidth' y 'newHeight' son los nuevos valores de ancho y alto que se asignarán al juego.
+    // Estos valores generalmente provienen de las dimensiones del contenedor del canvas en el DOM
+    // o de los eventos de redimensionamiento de la ventana.
+
+    // Actualiza el ancho del juego.
+    // 'this.width' es una propiedad clave que influye en cómo se dibujan y posicionan varios elementos dentro del juego,
+    // como los personajes, enemigos, proyectiles, y otros elementos gráficos.
     this.width = newWidth;
+
+    // Actualiza la altura del juego.
+    // Similar a 'this.width', 'this.height' afecta la colocación vertical y el límite superior/inferior de los elementos del juego.
+    // Esto es particularmente importante para el cálculo de colisiones y la lógica de movimiento de los personajes y enemigos.
     this.height = newHeight;
   }
   update(deltaTime: number) { // class Game
-    // update: Actualiza el estado del juego en cada frame.
-    // deltaTime: Tiempo transcurrido desde el último frame, usado para sincronizar movimientos.
+    // Método update: Actualiza el estado del juego en cada frame, gestionando la lógica central del juego.
+
+    // deltaTime: Tiempo transcurrido desde el último frame, usado para sincronizar movimientos y animaciones.
 
     // Incrementa el tiempo de juego si el juego aún no ha terminado.
+    // Esto es crucial para gestionar la progresión del tiempo dentro del juego.
     if (!this.gameOver) this.gameTime += deltaTime;
 
-    // Verifica si el tiempo de juego ha superado el límite de tiempo. Si es así, termina el juego.
+    // Verifica si el tiempo de juego ha superado el límite de tiempo.
+    // Si el tiempo límite se ha superado, se establece el estado del juego como finalizado.
     if (this.gameTime > this.timeLimit) this.gameOver = true;
-    // Actualiza el estado de los componentes del juego.
-
     // Actualiza el fondo del juego para que pueda cambiar o moverse con el tiempo.
+    // Esto puede incluir desplazar el fondo para crear un efecto de movimiento, o cambiar los gráficos según el progreso del juego.
     this.background.update();
-
     // Actualiza la posición y estado del jugador basándose en el tiempo transcurrido.
+    // Incluye la gestión de movimientos, colisiones, y cualquier otra lógica específica del jugador.
     this.player.update(deltaTime);
-
     // Gestiona la recarga de munición del jugador.
+    // Esto es crucial para mantener un balance en el juego, permitiendo al jugador disparar de forma limitada.
     if (this.ammoTimer > this.ammoInterval) {
       // Si el temporizador de munición supera el intervalo establecido, recarga la munición.
       if (this.ammo < this.maxAmmo) this.ammo++; // Asegura no superar la munición máxima.
@@ -758,31 +776,29 @@ class Game {
       // Si aún no se alcanza el intervalo, incrementa el temporizador de munición.
       this.ammoTimer += deltaTime;
     }
-    // Actualiza el estado del escudo del jugador.
+    // Actualiza el estado del escudo del jugador, si existe tal mecánica.
+    // Esto puede incluir verificar la durabilidad del escudo o su tiempo de recarga.
     this.shield.update(deltaTime);
-
     // Actualiza y filtra las partículas activas en el juego.
+    // Las partículas pueden ser efectos visuales como chispas, humo, o fragmentos resultantes de colisiones o disparos.
     this.particles.forEach(particle => particle.update()); // Actualiza cada partícula.
     // Remueve las partículas marcadas para eliminación.
     this.particles = this.particles.filter(particle => !particle.markedForDeletion);
-
     // Actualiza y filtra las explosiones activas en el juego.
+    // Las explosiones pueden ser efectos visuales para indicar destrucciones o impactos importantes.
     this.explosions.forEach(explosion => explosion.update(deltaTime)); // Actualiza cada explosión.
-    // Remueve las explosiones que ya no son necesarias.
-    this.explosions = this.explosions.filter(explosion => !explosion.markedForDeletion);
-
+    this.explosions = this.explosions.filter(explosion => !explosion.markedForDeletion); // Elimina las explosiones que han concluido su animación.
     // Actualiza los enemigos y maneja las colisiones con el jugador.
+    // La lógica de enemigos puede incluir movimientos, ataques, y detección de colisiones con el jugador o sus disparos.
     this.enemies.forEach(enemy => {
       enemy.update(); // Actualiza el estado y posición del enemigo.
-
       // Verifica colisiones entre el jugador y los enemigos.
       if (this.checkCollision(this.player, enemy)) {
-        enemy.markedForDeletion = true; // Marca el enemigo para eliminación.
-        this.addExplosion(enemy); // Crea una explosión en la posición del enemigo.
-        this.sound.hit(); // Reproduce un sonido de impacto.
-        this.shield.reset(); // Reinicia el estado del escudo.
-
-        // Crea nuevas partículas en la posición del enemigo para efectos visuales.
+        enemy.markedForDeletion = true; // Marca al enemigo para su eliminación.
+        this.addExplosion(enemy); // Genera una explosión visual en la posición del enemigo.
+        this.sound.hit(); // Reproduce un sonido de impacto o daño.
+        this.shield.reset(); // Si el jugador tiene un escudo, lo resetea o actualiza según la lógica del juego.
+        // Genera partículas en el punto de colisión para efectos visuales.
         for (let i = 0; i < enemy.score; i++) {
           this.particles.push(new Particle(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
         }
