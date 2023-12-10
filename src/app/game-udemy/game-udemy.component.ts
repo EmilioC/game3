@@ -908,66 +908,108 @@ class Game {
   }
 }
 class Enemy {
-  game: Game;
-  x: number;
-  speedX: number;
-  markedForDeletion: boolean;
-  width: number;
-  height: number;
-  y: number;
-  gradientShift: number;
-  increasing: boolean;
-  lives: number;
-  score: number;
-  frameX: number;
-  frameY: number;
-  maxFrame: number;
-  image: HTMLElement | null = null;
+  // La clase Enemy define las características y comportamientos de los enemigos en el juego.
+
+  game: Game; // Referencia al objeto principal del juego.
+  x: number; // Posición en el eje X.
+  speedX: number; // Velocidad de movimiento en el eje X.
+  markedForDeletion: boolean; // Indica si el enemigo debe ser eliminado del juego.
+  width: number; // Ancho del enemigo.
+  height: number; // Altura del enemigo.
+  y: number; // Posición en el eje Y.
+  gradientShift: number; // Utilizado para efectos visuales, como gradientes.
+  increasing: boolean; // Controla la dirección del cambio en el efecto visual.
+  lives: number; // Cantidad de vidas o golpes que el enemigo puede recibir.
+  score: number; // Puntos otorgados al jugador por derrotar a este enemigo.
+  frameX: number; // Índice de frame actual en la animación en el eje X.
+  frameY: number; // Índice de frame actual en la animación en el eje Y.
+  maxFrame: number; // Número máximo de frames en la animación.
+  image: HTMLElement | null = null; // Elemento de imagen del enemigo.
 
   constructor(game: Game) {
+    // El constructor inicializa el enemigo con valores predeterminados y los proporcionados por el juego.
     this.game = game;
-    this.x = this.game.width;
-    this.speedX = Math.random() * -1.5 - 0.5;
-    this.markedForDeletion = false;
+    this.x = this.game.width; // Inicialmente colocado al final del área de juego.
+    this.speedX = Math.random() * -1.5 - 0.5; // Velocidad aleatoria hacia la izquierda.
+    this.markedForDeletion = false; // Por defecto, no está marcado para eliminación.
+    // Inicialización de propiedades para efectos visuales y animaciones.
     this.gradientShift = 0;
     this.increasing = true;
-    this.lives = 5;
-    this.score = this.lives;
+    this.lives = 5; // La cantidad de vidas puede variar según el tipo de enemigo.
+    this.score = this.lives; // El puntaje puede estar relacionado con las vidas.
+    // Dimensiones y posición inicial se establecerán más tarde.
     this.y = 0;
     this.width = 0;
     this.height = 0;
     this.frameX = 0;
     this.frameY = 0;
-    this.maxFrame = 37;
-    this.image = document.getElementById('player') as HTMLImageElement;
-
+    this.maxFrame = 37; // La animación consta de 37 frames.
+    this.image = document.getElementById('player') as HTMLImageElement; // La imagen se obtiene del documento.
   }
-  update(): void { // class Enemy
+  update(): void {
+    // Método update: Actualiza la posición, el estado y la animación del enemigo en cada frame del juego.
+
+    // Mueve el enemigo hacia la izquierda en el canvas.
+    // El movimiento se calcula sumando la velocidad del enemigo (speedX) y la velocidad general del juego (game.speed).
+    // 'speedX' es negativo, lo que significa que el enemigo se mueve hacia la izquierda.
+    // La 'game.speed' se resta de 'speedX' para ajustar el movimiento del enemigo en relación a la velocidad general del juego,
+    // lo que puede variar en diferentes fases o niveles del juego.
     this.x += this.speedX - this.game.speed;
+
+    // Marca el enemigo para ser eliminado si se mueve fuera del área visible del juego.
+    // La condición verifica si la posición 'x' del enemigo, más su ancho, es menor que cero, lo que significa que ha salido completamente de la pantalla.
+    // Si es así, 'markedForDeletion' se establece en 'true', indicando al juego que debe eliminar este objeto enemigo.
     if (this.x + this.width < 0) this.markedForDeletion = true;
 
-    /*     if (this.width !== undefined && (this.x + this.width) < 0) { //Revisando efectos tuercas al eliminar no funciona
-          this.markedForDeletion = true;
-        } */
-    //sprite
+    // Gestión de la animación del sprite del enemigo.
+    // 'frameX' controla el índice actual del frame en la animación del enemigo.
+    // 'maxFrame' es el número total de frames en la animación.
+    // Si 'frameX' es menor que 'maxFrame', incrementa 'frameX' para pasar al siguiente frame.
+    // De lo contrario, si 'frameX' alcanza 'maxFrame', se reinicia a cero para comenzar la animación desde el principio.
+    // Esto crea un bucle de animación que continúa mientras el enemigo esté activo.
     if (this.frameX < this.maxFrame) {
       this.frameX++;
     } else {
       this.frameX = 0;
     }
   }
-  draw(context: any) { // class Enemy
-    if (this.game.debug) context.strokeRect(this.x, this.y, this.width, this.height);
+
+  draw(context: any) {
+    // Método draw: Dibuja visualmente el enemigo en el canvas del juego.
+
+    // Si el modo de depuración está activado en el juego, dibuja un rectángulo alrededor del enemigo.
+    // Esto es útil para la fase de desarrollo y depuración, ya que muestra claramente los límites del enemigo.
+    // 'context.strokeRect' dibuja un rectángulo hueco con las dimensiones y posición del enemigo.
+    if (this.game.debug) {
+      context.strokeRect(this.x, this.y, this.width, this.height);
+    }
+    // Dibuja la imagen actual del enemigo en el canvas.
+    // 'context.drawImage' se utiliza para renderizar la imagen del enemigo.
+    // Los parámetros incluyen la imagen, las coordenadas de recorte para la animación (basadas en 'frameX' y 'frameY'),
+    // y las dimensiones de recorte, así como la posición y tamaño final en el canvas.
+    // Esto permite mostrar diferentes frames de la animación del enemigo, creando el efecto de movimiento o actividad.
     context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
+
+    // En modo de depuración, muestra la cantidad de vidas que le quedan al enemigo.
+    // Esto ayuda a entender mejor cómo funciona la mecánica de daño y vida en el juego durante la fase de desarrollo.
+    // 'context.fillText' se usa para dibujar texto en el canvas, en este caso, el número de vidas restantes.
+    // La posición del texto se ajusta para que aparezca cerca del enemigo, lo que facilita asociar el texto con el enemigo correspondiente.
     if (this.game.debug) {
       context.font = '20px Helvetica';
-      context.fillText(this.lives, this.x, this.y);
+      context.fillText(this.lives.toString(), this.x, this.y);
     }
-
-    // Dibuja la vida del enemigo
+    // Establece el estilo de fuente para el texto que se va a dibujar en el canvas.
+    // 'context.font' permite definir el tamaño y el tipo de letra. En este caso, se usa 'Arial' de 50px.
+    // Este tamaño asegura que el texto sea claramente visible en el juego.
     context.font = '50px Arial';
-    context.fillText(this.lives.toString(), this.x, this.y);
 
+    // Dibuja el texto que representa las vidas restantes del enemigo en el canvas.
+    // 'context.fillText' se usa para renderizar texto en el canvas.
+    // 'this.lives.toString()' convierte el número de vidas del enemigo (un valor numérico) a una cadena de texto.
+    // Esto es necesario porque 'fillText' requiere una cadena como argumento.
+    // Las coordenadas (this.x, this.y) definen la posición del texto en el canvas.
+    // Se dibuja el texto en la posición actual del enemigo, lo que ayuda a identificar visualmente la salud del enemigo específico.
+    context.fillText(this.lives.toString(), this.x, this.y);
   }
 }
 class Angler1 extends Enemy {
