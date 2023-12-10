@@ -573,12 +573,14 @@ class Game {
         }
       })
     });
+    // Filtra y elimina los enemigos marcados para ser eliminados.
     this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
+    // Gestión del tiempo para la generación de nuevos enemigos.
     if (this.enemyTimer > this.enemyInterval && !this.gameOver) {
-      this.addEnemy();
-      this.enemyTimer = 0;
+      this.addEnemy(); // Añade un nuevo enemigo.
+      this.enemyTimer = 0; // Reinicia el temporizador para la generación de enemigos.
     } else {
-      this.enemyTimer += deltaTime;
+      this.enemyTimer += deltaTime; // Aumenta el temporizador para la generación de enemigos.
     }
   }
   draw(context: any) { // class Game
@@ -954,10 +956,10 @@ class UI {
     context.shadowColor = 'black';
     context.font = this.fontSize + 'px ' + this.fontFamily;
     //score
-    context.fillText('Puntazos: ' + this.game.score, 20, 40);
+    context.fillText('Flamenquines: ' + this.game.score, 20, 40);
     //Timer
     const formattedTime = (this.game.gameTime * 0.001).toFixed(1);
-    context.fillText('Tiempo: ' + formattedTime, 20, 100);
+    context.fillText('Olivos pendientes: ' + formattedTime, 20, 100);
     //Game over messages
     if (this.game.gameOver) {
       context.textAlign = 'center';
