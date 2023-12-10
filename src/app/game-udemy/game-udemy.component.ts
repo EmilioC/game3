@@ -584,54 +584,118 @@ class Game {
     }
   }
   draw(context: any) { // class Game
+    // El método 'draw' es responsable de renderizar todos los elementos del juego en el contexto del canvas.
+
+    // Dibuja el fondo del juego.
+    // 'background.draw' se encarga de renderizar el fondo del juego, que puede incluir varios elementos como paisajes, cielos, etc.
     this.background.draw(context);
+    // Dibuja la interfaz de usuario (UI).
+    // 'ui.draw' renderiza elementos de la interfaz de usuario como puntuaciones, barras de salud, indicadores de munición, etc.
     this.ui.draw(context);
+    // Dibuja el personaje del jugador.
+    // 'player.draw' muestra al jugador en su posición actual, incluyendo cualquier animación o estado visual como moverse, disparar, etc.
     this.player.draw(context);
+    // Dibuja el escudo del jugador.
+    // 'shield.draw' renderiza el escudo, si está activo, alrededor del jugador, proporcionando una representación visual de protección.
     this.shield.draw(context);
+
+    // Dibuja todas las partículas en el juego.
+    // 'particles.forEach' recorre y dibuja cada partícula. Las partículas se usan para efectos visuales como chispas, humo, etc.
     this.particles.forEach(particle => particle.draw(context));
-    this.enemies.forEach(enemy => {
-      enemy.draw(context);
-    });
-    this.explosions.forEach(explosion => {
-      explosion.draw(context);
-    });
+
+    // Dibuja todos los enemigos en el juego.
+    // 'enemies.forEach' recorre y dibuja cada enemigo. Esto incluye su posición, estado de animación y cualquier efecto especial.
+
+    this.enemies.forEach(enemy => { enemy.draw(context); });
+    // Dibuja todas las explosiones en el juego.
+    // 'explosions.forEach' recorre y dibuja cada explosión. Estos son efectos visuales que generalmente ocurren durante colisiones o destrucciones.
+    this.explosions.forEach(explosion => { explosion.draw(context); });
   }
   addEnemy() {
+    // addEnemy: Método para añadir enemigos al juego de manera aleatoria.
+
+    // Guarda el valor actual de 'randomize'.
     const randomize = this.randomize;
+
+    // Genera un nuevo valor aleatorio para 'randomize' entre 0 y 1.
     this.randomize = Math.random();
-    if (randomize < 0.1) this.enemies.push(new Angler1(this));
-    /* El siguiente if añade enemigos de tipo Staker al array de enmies.Si modificamos
-    y decrementamos el número de la comparación con radomize aumentará el número de
-    enemies de la clase Razonfin, yaque el el número randomize oscila entre 0 y 1 */
-    else if (randomize < 0.3) this.enemies.push(new Stalker(this));
-    else if (randomize < 0.5) this.enemies.push(new Razorfin(this));//Cantidad Angler2
-    else if (randomize < 0.6) this.enemies.push(new Angler2(this));//Cantidad Angler2
-    else if (randomize < 0.7) this.enemies.push(new HiveWhale(this));
-    else if (randomize < 0.8) this.enemies.push(new BulbWhale(this));//Cantidad HiveWhale
-    else if (randomize < 0.9) this.enemies.push(new MoonFish(this));//Cantidad HiveWhale
-    else this.enemies.push(new LuckyFish(this));
+
+    // La elección del tipo de enemigo a añadir depende del valor de 'randomize'.
+    if (randomize < 0.1) {
+      // Si 'randomize' es menor que 0.1, añade un enemigo de tipo Angler1.
+      this.enemies.push(new Angler1(this));
+    } else if (randomize < 0.3) {
+      // Si 'randomize' está entre 0.1 y 0.3, añade un enemigo de tipo Stalker.
+      this.enemies.push(new Stalker(this));
+    } else if (randomize < 0.5) {
+      // Si 'randomize' está entre 0.3 y 0.5, añade un enemigo de tipo Razorfin.
+      this.enemies.push(new Razorfin(this));
+    } else if (randomize < 0.6) {
+      // Si 'randomize' está entre 0.5 y 0.6, añade un enemigo de tipo Angler2.
+      this.enemies.push(new Angler2(this));
+    } else if (randomize < 0.7) {
+      // Si 'randomize' está entre 0.6 y 0.7, añade un enemigo de tipo HiveWhale.
+      this.enemies.push(new HiveWhale(this));
+    } else if (randomize < 0.8) {
+      // Si 'randomize' está entre 0.7 y 0.8, añade un enemigo de tipo BulbWhale.
+      this.enemies.push(new BulbWhale(this));
+    } else if (randomize < 0.9) {
+      // Si 'randomize' está entre 0.8 y 0.9, añade un enemigo de tipo MoonFish.
+      this.enemies.push(new MoonFish(this));
+    } else {
+      // Si 'randomize' es mayor o igual a 0.9, añade un enemigo de tipo LuckyFish.
+      this.enemies.push(new LuckyFish(this));
+    }
   }
 
   addExplosion(enemy: Enemy) {
+    // addExplosion: Método para añadir efectos de explosión cuando un enemigo es destruido.
+
+    // Genera un número aleatorio entre 0 y 1.
     const randomize = Math.random();
+
+    // Decide el tipo de explosión basado en el valor aleatorio.
     if (randomize < 0.5) {
-      this.explosions.push(new SmokeExplosion(this, enemy.x + enemy.width * 0.5,
-        enemy.y + enemy.height));
+      // Si el número aleatorio es menor que 0.5, añade dos tipos de explosiones.
+
+      // Añade una explosión de humo en la ubicación del enemigo.
+      // La posición se calcula para que la explosión aparezca en el centro del enemigo.
+      this.explosions.push(new SmokeExplosion(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height));
+
+      // Añade una explosión de fuego en la ubicación del enemigo.
+      // Similar a la explosión de humo, pero con un efecto visual diferente.
+      this.explosions.push(new FireExplosion(this, enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
+    }
+    /* Opcional: Puedes descomentar y modificar el siguiente bloque para añadir
+       diferentes tipos de explosiones o efectos adicionales según el número aleatorio.
+    else {
+      // Si el número aleatorio es 0.5 o mayor, añade otro tipo de explosión o efecto.
       this.explosions.push(new FireExplosion(this, enemy.x + enemy.width * 0.5,
         enemy.y + enemy.height * 0.5));
-    } /* else {
-      this.explosions.push(new FireExplosion(this, enemy.x + enemy.width * 0.5,
-        enemy.y + enemy.height * 0.5));
-    } */
+    }
+    */
   }
   checkCollision(rect1: any, rect2: any) { // class Game
-    // Lógica para manejo de colisiones y generación de enemigos.
-    // checkCollision: Determina si dos objetos colisionan.
+    // checkCollision: Método para determinar si dos objetos en el juego colisionan.
+    // Esta función es esencial para detectar interacciones entre diferentes elementos del juego, como el jugador, enemigos, y proyectiles.
+
+    // rect1 y rect2: Los dos objetos que se están comprobando para detectar una colisión.
+    // Estos objetos generalmente tendrán propiedades como x, y, width (ancho), y height (altura).
+
+    // La lógica de colisión se basa en la posición y dimensiones de los rectángulos (rect1 y rect2).
+    // Se comprueba si los bordes de los dos rectángulos se solapan en ambas dimensiones, x (horizontal) y y (vertical).
+
     return (
+      // Comprueba si el borde derecho de rect1 está a la derecha del borde izquierdo de rect2.
       rect1.x < rect2.x + rect2.width &&
+      // Comprueba si el borde izquierdo de rect1 está a la izquierda del borde derecho de rect2.
       rect1.x + rect1.width > rect2.x &&
+      // Comprueba si el borde inferior de rect1 está debajo del borde superior de rect2.
       rect1.y < rect2.y + rect2.height &&
-      rect1.height + rect1.y > rect2.y)
+      // Comprueba si el borde superior de rect1 está arriba del borde inferior de rect2.
+      rect1.height + rect1.y > rect2.y
+    );
+    // Si todas estas condiciones son verdaderas, entonces hay una colisión.
   }
 }
 class Enemy {
