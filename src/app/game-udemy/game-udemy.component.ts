@@ -844,6 +844,13 @@ class Game {
     });
     // Filtra y elimina los enemigos marcados para ser eliminados.
     this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
+    /*
+      Esta línea realiza una operación de filtrado en la lista de enemigos.
+      - Utiliza la función 'filter' para iterar sobre cada enemigo en la lista.
+      - El criterio de filtrado es si el enemigo NO está marcado para eliminación (enemy.markedForDeletion es falso).
+      - Los enemigos que no están marcados para eliminación permanecen en la lista, mientras que los marcados son removidos.
+      - Esto es esencial para mantener actualizado el estado del juego y evitar procesar enemigos que ya no deben estar en pantalla.
+    */
     // Gestión del tiempo para la generación de nuevos enemigos.
     if (this.enemyTimer > this.enemyInterval && !this.gameOver) {
       this.addEnemy(); // Añade un nuevo enemigo.
@@ -851,6 +858,15 @@ class Game {
     } else {
       this.enemyTimer += deltaTime; // Aumenta el temporizador para la generación de enemigos.
     }
+    /*
+  Este bloque controla la aparición de nuevos enemigos basándose en el tiempo.
+  - Se verifica si el temporizador 'enemyTimer' ha superado un intervalo específico 'enemyInterval'.
+  - Además, se verifica si el juego no ha terminado ('!this.gameOver').
+  - Si ambas condiciones son verdaderas, se llama a 'this.addEnemy()' para generar un nuevo enemigo.
+  - Luego, se reinicia 'enemyTimer' a 0 para comenzar a contar nuevamente hasta el próximo intervalo.
+  - Si el temporizador no ha superado el intervalo o el juego ha terminado, simplemente se incrementa 'enemyTimer' con el tiempo transcurrido ('deltaTime').
+  - Esto asegura que los enemigos se generen a intervalos regulares y que la generación se detenga cuando el juego termina.
+*/
   }
   draw(context: any) { // class Game
     // El método 'draw' es responsable de renderizar todos los elementos del juego en el contexto del canvas.
@@ -871,51 +887,72 @@ class Game {
     // Dibuja todas las partículas en el juego.
     // 'particles.forEach' recorre y dibuja cada partícula. Las partículas se usan para efectos visuales como chispas, humo, etc.
     this.particles.forEach(particle => particle.draw(context));
+    /*
+      - 'this.particles.forEach': Este método itera sobre cada partícula en la lista 'this.particles'.
+      - 'particle => particle.draw(context)': Para cada partícula en la lista, se invoca su método 'draw' pasando el contexto del canvas ('context').
+      - Las partículas pueden representar varios efectos visuales como explosiones, chispas, humo, etc., lo que añade realismo y atractivo visual al juego.
+      - Cada partícula se dibuja en su posición y estado actual, lo que puede incluir animaciones y efectos de movimiento.
+    */
 
     // Dibuja todos los enemigos en el juego.
     // 'enemies.forEach' recorre y dibuja cada enemigo. Esto incluye su posición, estado de animación y cualquier efecto especial.
-
     this.enemies.forEach(enemy => { enemy.draw(context); });
+    /*
+      - 'this.enemies.forEach': Itera sobre cada enemigo en la lista 'this.enemies'.
+      - 'enemy => { enemy.draw(context); }': Cada enemigo tiene un método 'draw' que se llama con el contexto del canvas.
+      - Esta operación se encarga de visualizar a cada enemigo en el canvas, mostrando su ubicación actual, animaciones y cualquier efecto visual asociado a ellos.
+      - Esto es esencial para la interacción del jugador, ya que los enemigos son los principales obstáculos en el juego.
+    */
+
     // Dibuja todas las explosiones en el juego.
     // 'explosions.forEach' recorre y dibuja cada explosión. Estos son efectos visuales que generalmente ocurren durante colisiones o destrucciones.
     this.explosions.forEach(explosion => { explosion.draw(context); });
+    /*
+      - 'this.explosions.forEach': Este método recorre cada elemento en la lista 'this.explosions'.
+      - 'explosion => { explosion.draw(context); }': Cada explosión tiene un método 'draw', que se ejecuta pasando el contexto del canvas.
+      - Las explosiones son efectos visuales clave que generalmente ocurren durante eventos significativos como la colisión entre un proyectil y un enemigo, o cuando un enemigo es destruido.
+      - Estos efectos mejoran la experiencia del jugador, proporcionando retroalimentación visual inmediata sobre las acciones y eventos en el juego.
+    */
   }
   addEnemy() {
-    // addEnemy: Método para añadir enemigos al juego de manera aleatoria.
+    // Este método es responsable de agregar nuevos enemigos al juego de manera aleatoria.
 
     // Guarda el valor actual de 'randomize'.
+    // 'randomize' es una variable que determina qué tipo de enemigo se añadirá.
     const randomize = this.randomize;
 
-    // Genera un nuevo valor aleatorio para 'randomize' entre 0 y 1.
+    // Genera un nuevo número aleatorio entre 0 y 1 y lo asigna a 'randomize'.
+    // Este nuevo valor se usará para determinar el próximo enemigo a añadir.
     this.randomize = Math.random();
 
-    // La elección del tipo de enemigo a añadir depende del valor de 'randomize'.
+    // La siguiente serie de condicionales determina qué tipo de enemigo añadir basándose en el valor de 'randomize'.
     if (randomize < 0.1) {
-      // Si 'randomize' es menor que 0.1, añade un enemigo de tipo Angler1.
+      // Si 'randomize' es menor que 0.1, añade un enemigo del tipo 'Angler1' al juego.
       this.enemies.push(new Angler1(this));
     } else if (randomize < 0.3) {
-      // Si 'randomize' está entre 0.1 y 0.3, añade un enemigo de tipo Stalker.
+      // Si 'randomize' está entre 0.1 y 0.3, añade un enemigo del tipo 'Stalker'.
       this.enemies.push(new Stalker(this));
     } else if (randomize < 0.5) {
-      // Si 'randomize' está entre 0.3 y 0.5, añade un enemigo de tipo Razorfin.
+      // Si 'randomize' está entre 0.3 y 0.5, añade un enemigo del tipo 'Razorfin'.
       this.enemies.push(new Razorfin(this));
     } else if (randomize < 0.6) {
-      // Si 'randomize' está entre 0.5 y 0.6, añade un enemigo de tipo Angler2.
+      // Si 'randomize' está entre 0.5 y 0.6, añade un enemigo del tipo 'Angler2'.
       this.enemies.push(new Angler2(this));
     } else if (randomize < 0.7) {
-      // Si 'randomize' está entre 0.6 y 0.7, añade un enemigo de tipo HiveWhale.
+      // Si 'randomize' está entre 0.6 y 0.7, añade un enemigo del tipo 'HiveWhale'.
       this.enemies.push(new HiveWhale(this));
     } else if (randomize < 0.8) {
-      // Si 'randomize' está entre 0.7 y 0.8, añade un enemigo de tipo BulbWhale.
+      // Si 'randomize' está entre 0.7 y 0.8, añade un enemigo del tipo 'BulbWhale'.
       this.enemies.push(new BulbWhale(this));
     } else if (randomize < 0.9) {
-      // Si 'randomize' está entre 0.8 y 0.9, añade un enemigo de tipo MoonFish.
+      // Si 'randomize' está entre 0.8 y 0.9, añade un enemigo del tipo 'MoonFish'.
       this.enemies.push(new MoonFish(this));
     } else {
-      // Si 'randomize' es mayor o igual a 0.9, añade un enemigo de tipo LuckyFish.
+      // Si 'randomize' es mayor o igual a 0.9, añade un enemigo del tipo 'LuckyFish'.
       this.enemies.push(new LuckyFish(this));
     }
   }
+
 
   addExplosion(enemy: Enemy) {
     // addExplosion: Método para añadir efectos de explosión cuando un enemigo es destruido.
@@ -1269,33 +1306,66 @@ class Explosion {
   maxFrame: number;
   image: HTMLElement;
   constructor(game: Game, x: number, y: number) {
-    this.game = game;
-    this.frameX = 0;
-    this.spriteWidth = 200;
-    this.spriteHeight = 200;
-    this.width = this.spriteWidth;
-    this.height = this.spriteHeight;
-    this.x = x - this.width * 0.5;
-    this.y = y - this.height * 0.5;
-    this.fps = 15; //Velocidad desaparece nubes explisión
-    this.timer = 0;
-    this.interval = 1000 / this.fps;
-    this.markedForDeletion = false;
-    this.maxFrame = 8;
-    this.image = document.getElementById('player')!;
+    // Constructor de la clase Explosion: inicializa la explosión.
+    this.game = game; // Referencia al objeto Game principal para acceso global.
+    this.frameX = 0; // Índice del frame actual en la animación de la explosión.
+    this.spriteWidth = 200; // Ancho de cada frame del sprite de la explosión.
+    this.spriteHeight = 200; // Altura de cada frame del sprite de la explosión.
+    this.width = this.spriteWidth; // Ancho total de la explosión.
+    this.height = this.spriteHeight; // Altura total de la explosión.
+    this.x = x - this.width * 0.5; // Posición en X, centrada en el punto de origen.
+    this.y = y - this.height * 0.5; // Posición en Y, centrada en el punto de origen.
+    this.fps = 15; // Frames por segundo, controla la velocidad de la animación.
+    this.timer = 0; // Temporizador para el control de la animación.
+    this.interval = 1000 / this.fps; // Intervalo entre frames basado en los fps.
+    this.markedForDeletion = false; // Indica si la explosión debe ser eliminada.
+    this.maxFrame = 8; // Número máximo de frames en la animación.
+    this.image = document.getElementById('player')!; // Imagen del sprite de la explosión.
   }
   update(deltaTime: number) {
+    // Método update: Actualiza el estado de la explosión en cada frame.
+
+    // Mueve la explosión hacia la izquierda en función de la velocidad del juego.
+    // Esto ayuda a que las explosiones se muevan con el escenario, manteniendo la consistencia visual.
     this.x -= this.game.speed;
+
+    // Gestiona el avance de los frames de la animación de la explosión.
+    // El temporizador se compara con un intervalo establecido para cambiar los frames.
     if (this.timer > this.interval) {
+      // Si el temporizador excede el intervalo, avanza al siguiente frame.
       this.frameX++;
+      // Reinicia el temporizador para el próximo ciclo de animación.
       this.timer = 0;
     } else {
+      // Si aún no se alcanza el intervalo, incrementa el temporizador.
+      // deltaTime es el tiempo transcurrido desde el último frame, lo que asegura una animación fluida.
       this.timer += deltaTime;
     }
-    if (this.frameX > this.maxFrame) this.markedForDeletion = true;
+
+    // Determina si la animación ha llegado a su fin.
+    // El ciclo de vida de la explosión depende del número de frames en su animación.
+    if (this.frameX > this.maxFrame) {
+      // Si se ha llegado al último frame, marca la explosión para eliminación.
+      // Esto ayuda a limpiar las explosiones que ya han completado su ciclo de vida.
+      this.markedForDeletion = true;
+    }
   }
   draw(context: any) {
-    context.drawImage(this.image, this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height);
+    // Método draw: Encargado de renderizar la explosión en el contexto del canvas.
+
+    // Dibuja la imagen de la explosión en el canvas.
+    // 'context.drawImage' es un método del contexto 2D del canvas que dibuja una imagen o parte de ella en el canvas.
+    context.drawImage(
+      this.image, // La imagen de la explosión a dibujar.
+      this.frameX * this.spriteWidth, // La posición X del frame actual en la hoja de sprites. Multiplicar el índice del frame (frameX) por el ancho del sprite (spriteWidth) para obtener la posición correcta.
+      0, // La posición Y en la hoja de sprites. Aquí se asume que todos los frames están en una sola fila, por lo que Y es siempre 0.
+      this.spriteWidth, // El ancho de un solo frame del sprite. Esto determina qué parte de la imagen se recorta y se dibuja.
+      this.spriteHeight, // La altura del sprite. Similar al ancho, determina la altura del recorte de la imagen.
+      this.x, // La posición X en el canvas donde se dibujará la explosión. Esto determina dónde aparecerá la explosión en el juego.
+      this.y, // La posición Y en el canvas para dibujar la explosión. Junto con X, ubica la explosión en el contexto del juego.
+      this.width, // El ancho con el que se dibujará la imagen en el canvas. Esto puede ser diferente al ancho del sprite para escalar la explosión.
+      this.height // La altura con la que se dibujará la imagen. Similar al ancho, permite escalar la explosión.
+    );
   }
 }
 
