@@ -423,60 +423,122 @@ class Projectile {
 
 }
 class Particle {
-  game: Game;
-  x: number;
-  y: number;
-  image: HTMLElement | null = null;
-  frameX: number;
-  frameY: number;
-  spriteSize: number;
-  sizeModifier: number;
-  size: number;
-  speedX: number;
-  speedY: number;
-  gravity: number;
-  markedForDeletion: boolean;
-  angle: number;
-  va: number;
-  bounced: number;
-  bottomBounceBoundary: number;
+  // Propiedades de la clase Particle, que definen las características y el estado de una partícula en el juego.
 
+  game: Game; // Referencia a la instancia del juego. Se utiliza para interactuar con otros componentes del juego.
+  x: number; // Posición horizontal de la partícula en el canvas.
+  y: number; // Posición vertical de la partícula en el canvas.
+  image: HTMLElement | null = null; // Elemento HTML que representa la imagen o sprite de la partícula, puede ser nulo si no se asigna.
+  frameX: number; // Índice actual del frame en el eje X para animaciones de sprites, si la partícula usa una hoja de sprites.
+  frameY: number; // Índice actual del frame en el eje Y para animaciones de sprites.
+  spriteSize: number; // Tamaño del sprite individual en la hoja de sprites.
+  sizeModifier: number; // Modificador de tamaño para la partícula, puede ser usado para escalar la partícula.
+  size: number; // Tamaño final de la partícula en el canvas.
+  speedX: number; // Velocidad de movimiento horizontal de la partícula.
+  speedY: number; // Velocidad de movimiento vertical de la partícula.
+  gravity: number; // Fuerza de gravedad aplicada a la partícula, afecta su movimiento vertical.
+  markedForDeletion: boolean; // Indica si la partícula debe ser eliminada, típicamente usado para limpiar partículas que ya no son necesarias.
+  angle: number; // Ángulo de rotación de la partícula, útil para animaciones rotativas.
+  va: number; // Velocidad angular, la velocidad a la que cambia el ángulo de la partícula.
+  bounced: number; // Contador para la cantidad de rebotes, si la partícula tiene un comportamiento de rebote.
+  bottomBounceBoundary: number; // Límite inferior para el rebote de la partícula.
+
+  /**
+   * Constructor de la clase Particle, que inicializa una nueva partícula con propiedades específicas.
+   * @param game Una referencia al objeto principal del juego, probablemente para acceder a métodos y propiedades globales.
+   * @param x La posición inicial en el eje X de la partícula en el canvas.
+   * @param y La posición inicial en el eje Y de la partícula en el canvas.
+   */
   constructor(game: Game, x: number, y: number) {
-    this.game = game;
-    this.x = x;
-    this.y = y;
+    this.game = game; // Almacena la referencia al objeto del juego.
+    this.x = x; // Establece la posición inicial X de la partícula.
+    this.y = y; // Establece la posición inicial Y de la partícula.
+
+    // Asigna una imagen al elemento de la partícula, obtenida del DOM por su ID.
     this.image = document.getElementById('gears');
+
+    // Establece posiciones aleatorias de frame para la animación de sprite, si es que se usa una hoja de sprites.
     this.frameX = Math.floor(Math.random() * 3);
     this.frameY = Math.floor(Math.random() * 3);
+
+    // Define el tamaño base del sprite y un modificador de tamaño para variar el tamaño de las partículas.
     this.spriteSize = 50;
     this.sizeModifier = +((Math.random() * 0.5 + 0.5).toFixed(1));
     this.size = this.spriteSize * this.sizeModifier;
+
+    // Asigna velocidades aleatorias en los ejes X e Y para movimiento dinámico.
     this.speedX = Math.random() * 6 - 3;
     this.speedY = Math.random() * -15;
+
+    // Establece la gravedad, que afectará el movimiento vertical de la partícula.
     this.gravity = 0.5;
+
+    // Inicialmente, la partícula no está marcada para ser eliminada.
     this.markedForDeletion = false;
+
+    // Establece el ángulo inicial de la partícula y su velocidad angular para rotación.
     this.angle = 0;
     this.va = Math.random() * 0.2 - 0.1;
+
+    // Inicializa el contador de rebotes y define un límite inferior para cuando la partícula rebote.
     this.bounced = 0;
     this.bottomBounceBoundary = Math.random() * 80 + 60;
   }
-  update() { //class Particle
+  update() {
+    // Incrementa el ángulo de la partícula por su velocidad angular (va).
+    // Esto podría usarse para hacer girar la partícula, creando un efecto de rotación.
     this.angle += this.va;
+
+    // Aumenta la velocidad vertical (speedY) de la partícula por la gravedad.
+    // Esto simula el efecto de la gravedad en la partícula, haciendo que acelere hacia abajo.
     this.speedY += this.gravity;
+
+    // Actualiza la posición horizontal (x) de la partícula.
+    // Resta la velocidad horizontal y la velocidad del juego a 'x', lo que puede hacer que la partícula se mueva hacia la izquierda.
+    // La inclusión de 'this.game.speed' sugiere que el movimiento de la partícula podría estar sincronizado con el movimiento global del juego.
     this.x -= this.speedX + this.game.speed;
+
+    // Actualiza la posición vertical (y) de la partícula.
+    // Suma la velocidad vertical a 'y', lo que puede hacer que la partícula se mueva hacia abajo.
     this.y += this.speedY;
-    if (this.y > this.game.height + this.size || this.x < 0 - this.size) this.markedForDeletion = true;
+
+    // Marca la partícula para eliminación si se mueve fuera de los límites del área de juego.
+    // Esto es una verificación de límites para remover la partícula si se sale del canvas visible.
+    if (this.y > this.game.height + this.size || this.x < 0 - this.size) {
+      this.markedForDeletion = true;
+    }
+
+    // Maneja el comportamiento de rebote de la partícula.
+    // Si la partícula alcanza el límite inferior del área de juego y aún puede rebotar, invierte su velocidad vertical.
     if (this.y > this.game.height - this.bottomBounceBoundary && this.bounced < 5) {
+      // Incrementa el contador de rebotes.
       this.bounced++;
+      // Invierte y reduce la velocidad vertical para simular un rebote.
       this.speedY *= -0.5;
     }
   }
   draw(context: any) {
+    // Guarda el estado actual del contexto del canvas.
+    // Esto es útil para restaurar el contexto a este estado después de realizar transformaciones.
     context.save();
+
+    // Mueve el origen del contexto del canvas a la posición de la partícula.
+    // Esto afecta a todas las operaciones de dibujo posteriores, que se realizarán en relación a este nuevo origen.
     context.translate(this.x, this.y);
+
+    // Rota el contexto del canvas al ángulo actual de la partícula.
+    // Esto es útil para dar efectos de rotación a la partícula.
     context.rotate(this.angle);
+
+    // Dibuja la imagen de la partícula en el canvas.
+    // 'drawImage' toma la imagen y la recorta según los valores de 'frameX' y 'frameY', y la posición en la hoja de sprites ('spriteSize').
+    // Luego, dibuja la imagen recortada en el canvas, con su tamaño escalado por 'size'.
+    // Los argumentos negativos en las coordenadas (this.size * -0.5) se utilizan para centrar la imagen en el origen trasladado.
     context.drawImage(this.image, this.frameX * this.spriteSize, this.frameY * this.spriteSize,
       this.spriteSize, this.spriteSize, this.size * -0.5, this.size * -0.5, this.size, this.size);
+
+    // Restaura el estado previamente guardado del contexto.
+    // Esto es importante para no afectar otras partes del canvas que se dibujarán después.
     context.restore();
   }
 }
@@ -1234,28 +1296,64 @@ class Razorfin extends Enemy {
   }
 }
 class Layer {
-  game: Game;
-  image: HTMLElement;
-  speedModifier: number;
-  width: number;
-  height: number;
-  x: number;
-  y: number;
+  // Propiedades de la clase Layer
+  game: Game; // Referencia a la instancia principal del juego.
+  image: HTMLElement; // Elemento HTML que representa la imagen de esta capa.
+  speedModifier: number; // Modificador de velocidad para el movimiento de la capa.
+  width: number; // Ancho de la capa.
+  height: number; // Altura de la capa.
+  x: number; // Posición horizontal de la capa en el canvas.
+  y: number; // Posición vertical de la capa en el canvas.
+
+  /**
+   * Constructor de la clase Layer.
+   * @param game Referencia al objeto principal del juego.
+   * @param image Elemento HTML que representa la imagen de la capa.
+   * @param speedModifier Modificador de velocidad para el movimiento de la capa.
+   */
   constructor(game: Game, image: HTMLElement, speedModifier: number) {
+    // Inicialización de propiedades.
     this.game = game;
     this.image = image;
     this.speedModifier = speedModifier;
-    this.width = 1768;
-    this.height = 500;
-    this.x = 0;
-    this.y = 0;
+    this.width = 1768; // Establece el ancho predefinido de la capa.
+    this.height = 500; // Establece la altura predefinida de la capa.
+    this.x = 0; // Inicializa la posición horizontal en 0.
+    this.y = 0; // Inicializa la posición vertical en 0.
   }
+  /**
+   * Método update para actualizar la posición de la capa.
+   * Se llama en cada frame para crear un efecto de movimiento o desplazamiento de la capa.
+   */
   update() {
-    if (this.x <= -this.width) this.x = 0;
-    else this.x -= this.game.speed * this.speedModifier;
+    // Comprueba si la posición horizontal 'x' de la capa ha pasado completamente el borde izquierdo del canvas.
+    // La condición 'this.x <= -this.width' se cumple cuando la capa se ha movido completamente fuera de la vista.
+    if (this.x <= -this.width) {
+      // Si la capa se ha movido fuera del canvas, reinicia su posición en 'x' a 0.
+      // Esto crea un bucle continuo, haciendo que la capa reaparezca y se desplace nuevamente.
+      this.x = 0;
+    } else {
+      // Si la capa aún está en el canvas, actualiza su posición 'x'.
+      // La capa se desplaza hacia la izquierda a una velocidad determinada por la velocidad del juego y un modificador de velocidad.
+      // 'this.game.speed' representa la velocidad general del juego, y 'this.speedModifier' ajusta esa velocidad para esta capa específica.
+      // Multiplicar estas dos velocidades y restarlas de 'x' mueve la capa hacia la izquierda.
+      this.x -= this.game.speed * this.speedModifier;
+    }
   }
+  /**
+   * Método draw: Dibuja la capa en el contexto del canvas proporcionado.
+   * @param context El contexto 2D del canvas en el que se dibujará la capa.
+   */
   draw(context: any) {
+    // Dibuja la imagen de la capa en el canvas.
+    // Usa 'context.drawImage' para renderizar 'this.image' (la imagen asignada a la capa) en las coordenadas especificadas.
+    // 'this.x' y 'this.y' son las coordenadas actuales de la capa en el canvas.
     context.drawImage(this.image, this.x, this.y);
+
+    // Dibuja una segunda instancia de la misma imagen a continuación de la primera.
+    // Esto se hace para crear un efecto de fondo continuo. Cuando una imagen se mueve fuera del canvas y su posición se reinicia,
+    // la segunda imagen asegura que no haya un espacio vacío visible, creando la ilusión de un fondo "infinito".
+    // 'this.x + this.width' coloca la segunda imagen justo después del final de la primera imagen, en la dirección horizontal.
     context.drawImage(this.image, this.x + this.width, this.y);
   }
 }
@@ -1443,119 +1541,232 @@ class UI {
   }
 }
 @Component({
+  // Define el selector CSS para usar en la plantilla HTML cuando se quiera incorporar este componente.
   selector: 'app-game-udemy',
+
+  // Marca el componente como independiente, lo que significa que puede ser usado sin ser declarado en un módulo.
   standalone: true,
+
+  // Especifica las importaciones que necesita este componente.
+  // CommonModule es un módulo que proporciona muchas directivas comunes como ngIf y ngFor.
   imports: [CommonModule],
+
+  // Define la ubicación del archivo de plantilla HTML para este componente.
+  // La plantilla HTML es donde se define la estructura y el contenido del componente.
   templateUrl: './game-udemy.component.html',
+
+  // Especifica la ubicación de los archivos de estilo CSS para este componente.
+  // Los estilos definidos aquí se aplican solo a este componente, sin afectar a otros elementos del DOM global.
   styleUrls: ['./game-udemy.component.css']
 })
+
 export class game_udemy implements AfterViewInit {
-  // Visualizar variable randomize. Es utilizada en la clase Game para generar
-  //enemigos en la array enemies.push
+  // Define una propiedad 'gameRandomize' que actúa como un getter.
+  // Este getter es una forma de acceder al valor de 'randomize' de la instancia 'game'.
   get gameRandomize(): number {
+    // Utiliza el operador condicional para verificar si 'game' está definido.
+    // Si 'game' existe, devuelve el valor de 'randomize' de la instancia 'game'.
+    // 'randomize' se utiliza en la clase 'Game' para determinar el tipo de enemigo a generar.
     return this.game ? this.game.randomize : 0;
   }
   public inputHandler!: InputHandler;
+  // Declara 'inputHandler' como una propiedad pública de la clase.
+  // El signo de exclamación '!' indica que se espera que 'inputHandler' sea asignado
+  // antes de que se acceda a él. 'InputHandler' es probablemente una clase que gestiona
+  // las entradas de usuario, como pulsaciones de teclas o clics.
 
   @ViewChild('canvas1') canvasRef!: ElementRef<HTMLCanvasElement>;
+  // Utiliza el decorador '@ViewChild' para obtener una referencia a un elemento
+  // del DOM dentro de la plantilla de Angular. En este caso, busca un elemento
+  // con la referencia de plantilla 'canvas1'. Esta referencia se almacena en 'canvasRef'.
+  // El tipo 'ElementRef<HTMLCanvasElement>' indica que se espera que este elemento
+  // sea un canvas HTML.
+
   private ctx: CanvasRenderingContext2D | null = null;
+  // Declara 'ctx' como una propiedad privada que almacenará el contexto de renderizado
+  // 2D del canvas. Se inicializa con 'null' y su tipo puede ser 'CanvasRenderingContext2D'
+  // o 'null'.
+
   private game!: Game;
+  // Declara 'game' como una propiedad privada de la clase. Al igual que 'inputHandler',
+  // el signo de exclamación indica que se espera que 'game' sea asignado antes de su uso.
+  // 'Game' es probablemente una clase que gestiona la lógica del juego.
+
   private animationFrameId!: number;
-  // public inputHandler!: InputHandler;
+  // Declara 'animationFrameId' como una propiedad privada que almacenará el ID
+  // devuelto por 'requestAnimationFrame'. Este ID se utiliza para cancelar la animación
+  // con 'cancelAnimationFrame' si es necesario.
+
   private lastTime: number = 0;
-
-
-  /*   ngAfterViewInit(): void {
-      const canvas = this.canvasRef.nativeElement;
-      this.ctx = canvas.getContext('2d')!;
-      canvas.width = 600;
-      canvas.height = 500;
-      this.game = new Game(canvas.width, canvas.height);
-      this.inputHandler = new InputHandler(this.game);
-      this.startGame();
-    } */
-
-
+  // Declara 'lastTime' como una propiedad privada que se inicializa en 0.
+  // Esta propiedad se utiliza para calcular el delta de tiempo entre frames
+  // en la animación del juego, lo cual es útil para animaciones y movimientos suaves.
 
   ngAfterViewInit(): void {
+    // Accede al elemento canvas utilizando la referencia obtenida a través de @ViewChild.
     const canvas = this.canvasRef.nativeElement;
 
+    // Obtiene el contexto 2D del canvas, necesario para dibujar gráficos.
     this.ctx = canvas.getContext('2d');
-    // Ajustar el tamaño del canvas al tamaño de la ventana
+
+    // Ajusta el tamaño del canvas para que coincida con el tamaño de la ventana.
     this.resizeCanvas(canvas);
+
+    // Inicializa una nueva instancia del juego con el ancho y alto del canvas.
     this.game = new Game(canvas.width, canvas.height);
+
+    // Inicializa el manejador de entradas (inputHandler) para el juego.
     this.inputHandler = new InputHandler(this.game);
+
+    // Inicia el ciclo de animación del juego.
     this.startGame();
-    // Manejar cambios de tamaño
+
+    // Agrega un oyente de eventos para redimensionar el canvas cuando se cambia el tamaño de la ventana.
     window.addEventListener('resize', () => this.resizeCanvas(canvas));
 
-    // Botón Subir
+    // Configura los botones de movimiento y disparo para el juego.
+    // Busca el botón 'Subir' en el DOM y añade oyentes de eventos para las acciones de mousedown, mouseup, touchstart y touchend.
+
+    // Obtiene una referencia al botón 'Subir' por su ID en el DOM.
     const moveUpButton = document.getElementById('moveUp');
+
+    // Añade un oyente de evento para el evento 'mousedown' en el botón 'Subir'.
+    // Cuando se presiona el botón del ratón sobre 'moveUpButton', se llama al método 'moveUp' del 'inputHandler'.
     moveUpButton?.addEventListener('mousedown', () => this.inputHandler.moveUp());
+
+    // Añade un oyente de evento para 'mouseup' en el botón 'Subir'.
+    // Cuando se suelta el botón del ratón sobre 'moveUpButton', se llama al método 'stopMoveUp' del 'inputHandler'.
     moveUpButton?.addEventListener('mouseup', () => this.inputHandler.stopMoveUp());
+
+    // Añade un oyente de evento para 'touchstart', que es el equivalente táctil de 'mousedown' para dispositivos táctiles.
+    // Al tocar la pantalla sobre 'moveUpButton', se activa 'moveUp'.
     moveUpButton?.addEventListener('touchstart', () => this.inputHandler.moveUp());
+
+    // Añade un oyente de evento para 'touchend', que es el equivalente táctil de 'mouseup'.
+    // Al dejar de tocar la pantalla sobre 'moveUpButton', se activa 'stopMoveUp'.
     moveUpButton?.addEventListener('touchend', () => this.inputHandler.stopMoveUp());
 
-    // Botón Bajar
-    const moveDownButton = document.getElementById('moveDown');
-    moveDownButton?.addEventListener('mousedown', () => this.inputHandler.moveDown());
-    moveDownButton?.addEventListener('mouseup', () => this.inputHandler.stopMoveDown());
-    moveDownButton?.addEventListener('touchstart', () => this.inputHandler.moveDown());
-    moveDownButton?.addEventListener('touchend', () => this.inputHandler.stopMoveDown());
-    document.getElementById('shoot')?.addEventListener('click', () => this.inputHandler.shoot());
+    // Realiza una operación similar para el botón 'Bajar'.
 
+    // Obtiene una referencia al botón 'Bajar' por su ID en el DOM.
+    const moveDownButton = document.getElementById('moveDown');
+    // Añade oyentes de eventos para 'mousedown', 'mouseup', 'touchstart' y 'touchend' en el botón 'Bajar'.
+    // Estos eventos manejan las acciones de mover hacia abajo y detener el movimiento hacia abajo.
+
+    // Añade un oyente de evento para 'mousedown' en el botón 'Bajar'.
+    // 'mousedown' se activa cuando el usuario hace clic en el botón con un dispositivo de puntero, como un ratón.
+    // Al activarse, llama a la función 'moveDown' del manejador de entrada ('inputHandler'), que inicia la acción de mover hacia abajo.
+    moveDownButton?.addEventListener('mousedown', () => this.inputHandler.moveDown());
+
+    // Añade un oyente de evento para 'mouseup' en el botón 'Bajar'.
+    // 'mouseup' se activa cuando el usuario suelta el botón del ratón después de haberlo presionado.
+    // Esta acción detiene el movimiento hacia abajo, llamando a 'stopMoveDown' en el 'inputHandler'.
+    moveDownButton?.addEventListener('mouseup', () => this.inputHandler.stopMoveDown());
+
+    // Añade un oyente de evento para 'touchstart' en el botón 'Bajar'.
+    // 'touchstart' es el equivalente táctil de 'mousedown' y se activa cuando el usuario toca la pantalla.
+    // Al igual que 'mousedown', inicia la acción de mover hacia abajo.
+    moveDownButton?.addEventListener('touchstart', () => this.inputHandler.moveDown());
+
+    // Añade un oyente de evento para 'touchend' en el botón 'Bajar'.
+    // 'touchend' se activa cuando el usuario deja de tocar la pantalla.
+    // Al igual que 'mouseup', detiene el movimiento hacia abajo.
+    moveDownButton?.addEventListener('touchend', () => this.inputHandler.stopMoveDown());
+
+
+    // Configura el botón de disparo.
+    document.getElementById('shoot')?.addEventListener('click', () => this.inputHandler.shoot());
   }
   private resizeCanvas(canvas: HTMLCanvasElement): void {
+    // Establece el ancho del canvas igual al ancho interior de la ventana del navegador.
     canvas.width = window.innerWidth;
+
+    // Establece la altura del canvas igual a la altura interior de la ventana del navegador.
     canvas.height = window.innerHeight;
+
+    // Comprueba si la instancia del juego está inicializada.
     if (this.game) {
+      // Llama al método 'resize' del juego, pasando las nuevas dimensiones del canvas.
+      // Esto es crucial para asegurarse de que todos los elementos gráficos del juego se escalen y posicionen correctamente
+      // en relación con el nuevo tamaño del canvas.
       this.game.resize(canvas.width, canvas.height);
     }
   }
-
   OnDestroy(): void {
-    // You should remove event listeners when the component is destroyed
+    // Este método se llama automáticamente cuando el componente Angular está a punto de ser destruido.
+    // Es una buena práctica de programación limpiar los oyentes de eventos y suscriptores para evitar fugas de memoria.
+
+    // Elimina el oyente de evento 'keydown' del objeto 'window'.
+    // Este oyente de evento estaba atado a la función 'keydown' del 'inputHandler',
+    // que se usa para manejar las presiones de teclas por parte del usuario.
     window.removeEventListener('keydown', this.inputHandler.keydown);
+
+    // De manera similar, elimina el oyente de evento 'keyup' del objeto 'window'.
+    // Este oyente estaba vinculado a la función 'keyup' del 'inputHandler',
+    // para manejar cuando el usuario suelta una tecla.
     window.removeEventListener('keyup', this.inputHandler.keyup);
   }
-
+  /**
+   * Método para iniciar el juego. Este método es privado y solo puede ser llamado dentro de esta clase.
+   */
   private startGame(): void {
+    // Llama al método 'animate' con el valor inicial 0.
+    // Esto inicia el proceso de animación o el bucle del juego.
+    // '0' generalmente representa el tiempo inicial o el estado inicial para el bucle de animación.
     this.animate(0);
   }
-
+  /**
+   * Método para manejar la animación del juego o de una interfaz gráfica.
+   * Este método se llama recursivamente para actualizar y dibujar el estado del juego o de la interfaz.
+   * @param timeStamp Representa un timestamp que indica el momento actual de la animación o el juego.
+   */
   private animate(timeStamp: number): void {
+    // Verifica si el contexto del canvas (ctx) o el elemento nativo del canvas (nativeElement) es nulo.
     if (!this.ctx || !this.canvasRef.nativeElement) {
-      // Manejar el caso en que ctx o canvasRef.nativeElement sean null
+      // Si 'ctx' o 'nativeElement' es nulo, la función retorna tempranamente.
+      // Esto previene errores en caso de que el canvas no esté correctamente inicializado o disponible.
       return;
     }
-
+    // Calcula el tiempo transcurrido desde la última vez que se llamó a 'animate'.
     const deltaTime = timeStamp - this.lastTime;
+    // Actualiza 'lastTime' al tiempo actual para la próxima vez que se llame a 'animate'.
     this.lastTime = timeStamp;
 
+    // Limpia el canvas completo para preparar el nuevo frame de dibujo.
+    // 'clearRect' limpia un rectángulo específico, en este caso, todo el canvas.
     this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
+
+    // Llama al método 'draw' del objeto 'game'.
+    // Se encarga de dibujar los elementos del juego en el canvas en su estado actual.
     this.game.draw(this.ctx);
+
+    // Actualiza el estado del juego.
+    // 'update' toma el tiempo transcurrido ('deltaTime') para manejar la lógica del juego que depende del tiempo.
     this.game.update(deltaTime);
+
+    // Solicita el siguiente frame de animación.
+    // 'requestAnimationFrame' llama a 'animate' antes del próximo repaint del navegador, con el timestamp actual.
+    // Esto crea un bucle de animación suave y eficiente para el juego o la animación en el canvas.
     this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp));
-
   }
-
-  /* VERSIÓN ANTERIOR AL AJUSTE DE PANTALLA
-  private animate(timeStamp: number): void {
-      const deltaTime = timeStamp - this.lastTime; // Calcular el timepo transcurrido desde la última frame
-      this.lastTime = timeStamp; // Actualizar lastTime al timeStamp actual
-
-      this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height); // Limpiar el canvas
-      this.game.update(deltaTime); // Pasar deltaTime al método update
-      this.game.draw(this.ctx); // Dibujar el estado actualizado del juego
-
-      this.animationFrameId = requestAnimationFrame(timestamp => this.animate(timestamp)); // Pedir el siguiente frame
-    } */
-
+  /**
+   * Método ngOnDestroy: Se llama automáticamente cuando el componente está a punto de ser destruido.
+   * Este método es parte del ciclo de vida del componente en Angular y se utiliza para realizar tareas de limpieza.
+   */
   ngOnDestroy(): void {
+    // Verifica si existe un ID de frame de animación almacenado en 'this.animationFrameId'.
+    // 'this.animationFrameId' es probablemente un número que identifica un frame de animación
+    // solicitado previamente con 'requestAnimationFrame'.
     if (this.animationFrameId) {
+      // Si 'this.animationFrameId' existe, cancela la solicitud de animación.
+      // 'cancelAnimationFrame' detiene la animación asociada con el ID proporcionado.
+      // Esto es importante para prevenir que la animación continúe ejecutándose
+      // después de que el componente se haya destruido, lo que podría causar errores
+      // y uso innecesario de recursos, especialmente la CPU.
       cancelAnimationFrame(this.animationFrameId);
     }
   }
+
 }
 
 
