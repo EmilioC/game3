@@ -1393,41 +1393,52 @@ class UI {
     this.fontFamily = 'Bangers';
     this.color = "white"
   }
-  draw(context: any) { // class UI
+  draw(context: any) {
+    // Guarda el estado actual del contexto para poder restaurarlo después.
     context.save();
-    context.fillStyle = this.color;
-    context.shadowOffsetX = 2;
-    context.shadowOffsetY = 2;
-    context.shadowColor = 'black';
-    context.font = this.fontSize + 'px ' + this.fontFamily;
-    //score
+
+    // Configuraciones básicas de estilo para el texto y las sombras.
+    context.fillStyle = this.color; // Establece el color del texto.
+    context.shadowOffsetX = 2; // Desplazamiento de la sombra en el eje X.
+    context.shadowOffsetY = 2; // Desplazamiento de la sombra en el eje Y.
+    context.shadowColor = 'black'; // Color de la sombra.
+    context.font = this.fontSize + 'px ' + this.fontFamily; // Estilo del texto (tamaño y fuente).
+
+    // Muestra la puntuación actual del juego.
     context.fillText('Flamenquines: ' + this.game.score, 20, 40);
-    //Timer
+
+    // Convierte el tiempo de juego a segundos y lo muestra.
     const formattedTime = (this.game.gameTime * 0.001).toFixed(1);
     context.fillText('Olivos pendientes: ' + formattedTime, 20, 100);
-    //Game over messages
+
+    // Muestra mensajes de fin de juego según si el jugador ha ganado o perdido.
     if (this.game.gameOver) {
-      context.textAlign = 'center';
+      context.textAlign = 'center'; // Alinea el texto al centro para mostrarlo en el medio de la pantalla.
       let message1;
       let message2;
       if (this.game.score > this.game.winningScore) {
+        // Mensajes en caso de victoria.
         message1 = 'Coñis has ganado!';
         message2 = 'jaja Bene Bene!';
       } else {
+        // Mensajes en caso de derrota.
         message1 = 'La cagaste burt lancaster!';
         message2 = '¿La refinitiva?';
-      } // class UI
-      context.font = '70 px ' + this.fontFamily;
+      }
+      context.font = '70px ' + this.fontFamily; // Aumenta el tamaño del texto para los mensajes.
       context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 20);
-      context.font = '5px ' + this.fontFamily;
+      context.font = '25px ' + this.fontFamily; // Reduce el tamaño del texto para el mensaje secundario.
       context.fillText(message2, this.game.width * 0.5, this.game.height * 0.5 + 20);
     }
-    //amo
-    if (this.game.player.powerUp) context.fillStyle = '#ffffbd';
+
+    // Dibuja la barra de munición.
+    if (this.game.player.powerUp) context.fillStyle = '#ffffbd'; // Cambia el color de la barra si el jugador tiene un power-up.
     for (let i = 0; i < this.game.ammo; i++) {
-      //descuenta los tiros y va añadiendo en función del tiempo
+      // Dibuja un rectángulo para cada unidad de munición.
       context.fillRect(20 + 5 * i, 50, 3, 20);
     }
+
+    // Restaura el estado anterior del contexto.
     context.restore();
   }
 }
