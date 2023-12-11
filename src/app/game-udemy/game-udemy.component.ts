@@ -1359,33 +1359,65 @@ class Layer {
 }
 
 class Background {
-  game: Game;
-  image1: HTMLElement;
-  image2: HTMLElement;
-  image3: HTMLElement;
-  image4: HTMLElement;
-  layer1: Layer;
-  layer2: Layer;
-  layer3: Layer;
-  layer4: Layer;
-  layers: Layer[];
+  // Propiedades de la clase Background.
+  game: Game; // Referencia a la instancia principal del juego.
+  image1: HTMLElement; // Referencia al primer elemento de imagen para la capa de fondo.
+  image2: HTMLElement; // Referencia al segundo elemento de imagen para la capa de fondo.
+  image3: HTMLElement; // Referencia al tercer elemento de imagen para la capa de fondo.
+  image4: HTMLElement; // Referencia al cuarto elemento de imagen para la capa de fondo.
+  layer1: Layer; // Primera capa de fondo.
+  layer2: Layer; // Segunda capa de fondo.
+  layer3: Layer; // Tercera capa de fondo.
+  layer4: Layer; // Cuarta capa de fondo.
+  layers: Layer[]; // Array de capas para gestionar múltiples capas juntas.
+
+  /**
+   * Constructor de la clase Background.
+   * @param game Referencia al objeto del juego.
+   */
   constructor(game: Game) {
-    this.game = game;
+    this.game = game; // Almacena la referencia al juego.
+    // Obtiene y asigna los elementos de imagen para cada capa de fondo.
     this.image1 = document.getElementById('layer1')!;
     this.image2 = document.getElementById('layer2')!;
     this.image3 = document.getElementById('layer3')!;
     this.image4 = document.getElementById('layer4')!;
+    // Crea instancias de la clase Layer para cada capa de fondo con diferentes imágenes y modificadores de velocidad.
     this.layer1 = new Layer(this.game, this.image1, 1);
     this.layer2 = new Layer(this.game, this.image2, 2);
     this.layer3 = new Layer(this.game, this.image3, 1.6);
     this.layer4 = new Layer(this.game, this.image4, 1.8);
+    // Inicializa el array 'layers' con algunas de estas capas.
     this.layers = [this.layer1, this.layer2];
   }
+  /**
+    * Método update: Actualiza todas las capas de fondo en cada frame.
+    * Se utiliza típicamente en un bucle de animación o en el ciclo de actualización de un juego.
+    */
   update() {
+    // Itera sobre cada capa de fondo almacenada en el array 'layers'.
+    // Para cada capa (referida como 'layer' en la función de flecha),
+    // llama a su método 'update'.
+    // Este método 'update' en las capas individuales es responsable de modificar
+    // el estado de la capa, como su posición o cualquier otra propiedad que necesite actualización.
+    // Por ejemplo, podría cambiar la posición de la capa para crear un efecto de movimiento o desplazamiento.
     this.layers.forEach(layer => layer.update());
   }
+  /**
+   * Método draw: Dibuja todas las capas de fondo en el contexto del canvas proporcionado.
+   * @param context El contexto 2D del canvas en el que se dibujarán las capas.
+   * Este método es típicamente llamado en cada frame del ciclo de animación del juego o aplicación.
+   */
   draw(context: any) {
+    // Itera sobre cada capa de fondo en el array 'layers'.
+    // Para cada capa (referida como 'layer' en la función de flecha),
+    // llama a su método 'draw' y pasa el contexto del canvas como argumento.
     this.layers.forEach(layer => layer.draw(context));
+
+    // El método 'draw' de cada capa es responsable de renderizar la capa en el canvas.
+    // Esto puede incluir dibujar una imagen, patrones o cualquier otro tipo de gráfico que la capa represente.
+    // Al iterar sobre todas las capas, se consigue una composición de todas ellas en el canvas,
+    // lo que puede ser utilizado para crear efectos visuales como fondos de paralaje o capas de decoración.
   }
 }
 class Explosion {
