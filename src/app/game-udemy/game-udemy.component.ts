@@ -1,6 +1,61 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Images } from '../gif/interfaces/gifs.interfaces';
+
+class Runner {
+  game: Game;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  speedX: number;
+  image: HTMLElement;
+  frameX: number;
+  maxFrame: number;
+  frameY: number;
+
+  constructor(game: Game) {
+    this.game = game;
+    this.width = 120; // Ancho del corredor
+    this.height = 190; // Altura del corredor
+    this.x = 0; // Posición inicial en X
+    this.y = 400; // Posición en Y en la parte inferior de la pantalla
+    this.speedX = 9; // Velocidad de movimiento horizontal
+    this.image = document.getElementById('player')!;; // Imagen del corredor
+    this.frameX = 0; // Índice actual del frame para animaciones
+    this.maxFrame = 5; // Número total de frames para la animación
+    this.frameX = 0; // Inicia en el primer frame para la animación.
+    this.frameY = 0;
+  }
+
+  update() {
+    // Mueve el corredor de izquierda a derecha
+    this.x += this.speedX;
+
+    // Invierte la dirección al llegar a los bordes del canvas
+    if (this.x + this.width > this.game.width || this.x < 0) {
+      this.speedX = -this.speedX;
+    }
+
+    // Maneja la animación del corredor
+    this.frameX++;
+    if (this.frameX > this.maxFrame) this.frameX = 0;
+  }
+
+  draw(context: any) {
+    context.drawImage(
+      this.image, // La imagen (sprite) del jugador.
+      this.frameX * this.width, // La posición X del frame a dibujar desde la imagen del sprite.
+      this.frameY * this.height, // La posición Y del frame a dibujar desde la imagen del sprite.
+      this.width, // Ancho del frame del sprite a dibujar.
+      this.height, // Altura del frame del sprite a dibujar.
+      this.x, // Posición X en el canvas donde se dibujará la imagen.
+      this.y, // Posición Y en el canvas donde se dibujará la imagen.
+      this.width, // Ancho con el que se dibujará la imagen en el canvas.
+      this.height
+    );
+  }
+}
+
 
 class InputHandler {
   // InputHandler: Clase para gestionar las entradas de teclado en el juego.
@@ -597,16 +652,33 @@ class Player {
     // Actualiza la posición Y del jugador basándose en su velocidad.
     this.y += this.speedY;
 
-    // vertical boundaries
-    // Controla los límites verticales para evitar que el jugador salga del área de juego.
-    if (this.y > this.game.height - this.height * 0.5) {
-      // Impide que el jugador se mueva más allá del borde inferior del juego.
-      this.y = this.game.height - this.height * 0.5;
-    } else if (this.y < -this.height * 0.5) {
-      // Impide que el jugador se mueva más allá del borde superior del juego.
-      this.y = -this.height * 0.5;
+    // Gestiona los límites verticales para asegurar que el personaje del jugador no se salga del área de juego.
+    if (this.y > this.game.height - this.height) {
+      // Comprueba si el jugador ha excedido el límite inferior del área de juego.
+      // 'this.y' es la posición vertical actual del jugador.
+      // 'this.game.height' es la altura total del área de juego.
+      // 'this.height' es la altura del jugador.
+      // Si la posición inferior del jugador (calculada como 'this.y + this.height') es mayor que la altura del juego,
+      // significa que el jugador está tratando de moverse más allá del límite inferior del área de juego.
+
+      this.y = this.game.height - this.height;
+      // Ajusta la posición vertical del jugador para que se coloque justo en el límite inferior.
+      // Esto se hace estableciendo 'this.y' a la altura del juego menos la altura del jugador.
+      // De esta forma, el borde inferior del jugador se alinea con el borde inferior del área de juego,
+      // evitando que el jugador se mueva más abajo del límite permitido.
+    } else if (this.y < 0) {
+      // Comprueba si el jugador ha excedido el límite superior del área de juego.
+      // Si 'this.y', que representa la posición vertical superior del jugador, es menor que 0,
+      // significa que el jugador está tratando de moverse más allá del límite superior del área de juego.
+
+      this.y = 0;
+      // Ajusta la posición vertical del jugador para que se coloque justo en el límite superior.
+      // Esto se hace estableciendo 'this.y' a 0.
+      // De esta forma, el borde superior del jugador se alinea con el borde superior del área de juego,
+      // evitando que el jugador se mueva más arriba del límite permitido.
     }
-    // Actualiza todos los proyectiles disparados por el jugador.
+
+
     this.projectiles.forEach(projectile => {
       projectile.update(deltaTime);
     });
@@ -786,7 +858,6 @@ class Game {
     this.layer1 = undefined!;
     this.randomize = 0;
     this.explosions = [];
-
   }
   resize(newWidth: number, newHeight: number): void {
     // Método resize: Se encarga de ajustar las dimensiones del área de juego.
@@ -945,7 +1016,6 @@ class Game {
     // Dibuja el escudo del jugador.
     // 'shield.draw' renderiza el escudo, si está activo, alrededor del jugador, proporcionando una representación visual de protección.
     this.shield.draw(context);
-
     // Dibuja todas las partículas en el juego.
     // 'particles.forEach' recorre y dibuja cada partícula. Las partículas se usan para efectos visuales como chispas, humo, etc.
     this.particles.forEach(particle => particle.draw(context));
@@ -1535,11 +1605,11 @@ class UI {
     context.font = this.fontSize + 'px ' + this.fontFamily; // Estilo del texto (tamaño y fuente).
 
     // Muestra la puntuación actual del juego.
-    context.fillText('Flamenquines: ' + this.game.score, 20, 40);
+    context.fillText('Choco: ' + this.game.score, 20, 40);
 
     // Convierte el tiempo de juego a segundos y lo muestra.
     const formattedTime = (this.game.gameTime * 0.001).toFixed(1);
-    context.fillText('Olivos pendientes: ' + formattedTime, 20, 100);
+    context.fillText('Pensam: ' + formattedTime, 20, 100);
 
     // Muestra mensajes de fin de juego según si el jugador ha ganado o perdido.
     if (this.game.gameOver) {
