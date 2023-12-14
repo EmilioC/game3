@@ -236,48 +236,6 @@ class InputHandler {
   }
 
 }
-
-class Obstaculo1 {
-  game: Game;
-  width: number;
-  height: number;
-  frameX: number;
-  maxFrame: number;
-  image: HTMLElement | null = null;
-  fps: number;
-  timer: number;
-  interval: number;
-  constructor(game: Game) {
-    this.game = game;
-    this.width = this.game.player.width;
-    this.height = this.game.player.height;
-    this.frameX = 0;
-    this.maxFrame = 24;
-    this.image = document.getElementById('shield');
-    this.fps = 60;
-    this.timer = 0;
-    this.interval = 1000 / this.fps;
-  }
-  update(deltaTime: number) {
-    if (this.frameX <= this.maxFrame) {
-      if (this.timer > this.interval) {
-        this.frameX++;
-        this.timer = 0;
-      } else {
-        this.timer += deltaTime;
-      }
-    }
-  }
-  draw(context: any) {
-    context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height,
-      this.game.player.x, this.game.player.y, this.width, this.height);
-  }
-  reset() {
-    this.frameX = 0;
-    this.game.sound.shield();
-  }
-}
-
 class SoundController {
   powerUpSound: HTMLAudioElement;
   powerDownSound: HTMLAudioElement;
@@ -341,8 +299,6 @@ class SoundController {
     this.shieldSound.play();
   }
 }
-
-
 class Shield {
   game: Game;
   width: number;
@@ -716,15 +672,15 @@ class Player {
       }
     }
     // Si la tecla 'z' es presionada, realiza el salto
-    if (this.game.keys.includes('z') && !this.isJumping) {
-      console.log("Tecla 'z' presionada:", this.game.keys.includes('z'));
-      this.jump();
-    }
+    /*     if (this.game.keys.includes('z') && !this.isJumping) {
+          console.log("Tecla 'z' presionada:", this.game.keys.includes('z'));
+          this.jump();
+        } */
 
-    if (!this.isJumping) {
-      // Aplica gravedad solo si no está saltando
-      this.speedY += this.gravity;
-    }
+    /*     if (!this.isJumping) {
+          // Aplica gravedad solo si no está saltando
+          this.speedY += this.gravity;
+        } */
     this.y += this.speedY;
 
     // Verifica si el jugador ha aterrizado
@@ -823,7 +779,7 @@ class Player {
     this.game.sound.powerUp();
   }
   jump() {
-    this.y = (this.y) + (-30); // Ajusta para controlar la altura del salto
+    this.y = (this.y) + (-80); // Ajusta para controlar la altura del salto
     console.log("This.speed - AFTER: " + this.speedY);
 
   }
@@ -1085,6 +1041,7 @@ class Game {
     // Genera un nuevo número aleatorio entre 0 y 1 y lo asigna a 'randomize'.
     // Este nuevo valor se usará para determinar el próximo enemigo a añadir.
     this.randomize = Math.random();
+    /* this.enemies.push(new Obstaculo1(this)); */
 
     // La siguiente serie de condicionales determina qué tipo de enemigo añadir basándose en el valor de 'randomize'.
     if (randomize < 0.1) {
@@ -1269,6 +1226,36 @@ class Enemy {
     context.fillText(this.lives.toString(), this.x, this.y);
   }
 }
+
+class Obstaculo {
+  game: Game; // Referencia a la instancia del juego, utilizada para interactuar con otros componentes del juego.
+  width: number; // Ancho del sprite del jugador.
+  height: number; // Altura del sprite del jugador.
+  x: number; // Posición en el eje X del jugador en el canvas.
+  y: number; // Posición en el eje Y del jugador en el canvas.
+
+  constructor(game: Game) {
+    this.game = game;
+    this.x = 20;
+    this.y = 100;
+    this.width = 120;
+    this.height = 190;
+  }
+  draw(context: any) {
+    // Dibuja un rectángulo simple como obstáculo
+    context.fillStyle = 'red'; // Color del obstáculo
+    context.fillRect(this.x, this.y, this.width, this.height);
+  }
+
+  // Método para detectar colisión con el jugador
+  checkCollision(player: Player) {
+    return player.x < this.x + this.width &&
+      player.x + player.width > this.x &&
+      player.y < this.y + this.height &&
+      player.y + player.height > this.y;
+  }
+}
+
 class Angler1 extends Enemy {
   constructor(game: Game) {
     super(game);
