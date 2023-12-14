@@ -577,7 +577,7 @@ class Player {
     this.game = game; // Establece la referencia al juego.
     this.width = 120; // Establece el ancho del sprite.
     this.height = 190; // Establece la altura del sprite.
-    this.x = 20; // Posición inicial en el eje X.
+    this.x = 50; // Posición inicial en el eje X.
     this.y = 100; // Posición inicial en el eje Y.
     this.frameX = 0; // Inicia en el primer frame para la animación.
     this.frameY = 0; // Inicia en el primer frame para la animación.
@@ -668,27 +668,52 @@ class Player {
         this.game.ammo += 0.1; // Aumenta gradualmente la munición del jugador.
       }
     }
-    // Si la tecla 'z' es presionada, realiza el salto
-    /*     if (this.game.keys.includes('z') && !this.isJumping) {
-          console.log("Tecla 'z' presionada:", this.game.keys.includes('z'));
-          this.jump();
-        } */
-
-    /*     if (!this.isJumping) {
-          // Aplica gravedad solo si no está saltando
-          this.speedY += this.gravity;
-        } */
 
     this.speedY += this.gravity;
     this.y += this.speedY;
-
-
     // Verifica si el jugador ha aterrizado
     if (this.y > this.game.height - this.height) {
       this.y = this.game.height - this.height;
       // Restablece el estado de salto
       this.speedY = 0; // Restablece la velocidad vertical
     }
+
+    // Verifica si el jugador está saliendo de los límites horizontales de la pantalla.
+    if (this.x < 0) {
+      this.x = 0; // Impide que el jugador se mueva más allá del borde izquierdo.
+    } else if (this.x + this.width > this.game.width) {
+      this.x = this.game.width - this.width; // Impide que el jugador se mueva más allá del borde derecho.
+    }
+
+    // Comprueba las colisiones con los obstáculos.
+    this.game.obstaculos.forEach(obstaculo => {
+      if (this.checkCollisionWithObstacle(obstaculo)) {
+        // Si la parte derecha del jugador toca el obstáculo, ajusta la posición X.
+        if (this.x + this.width > obstaculo.x && this.x < obstaculo.x) {
+          this.x = obstaculo.x - this.width;
+        }
+
+        // Si la parte inferior del jugador toca el obstáculo, ajusta la posición Y.
+        if (this.y + this.height > obstaculo.y && this.y < obstaculo.y) {
+          this.y = obstaculo.y - this.height;
+        }
+      }
+    });
+
+    // Restringe la posición horizontal del jugador dentro de los límites de la pantalla.
+    if (this.x < 0) {
+      this.x = 0; // Impide que el jugador se mueva más allá del borde izquierdo.
+    } else if (this.x + this.width > this.game.width) {
+      this.x = this.game.width - this.width; // Impide que el jugador se mueva más allá del borde derecho.
+    }
+
+    // Restringe la posición vertical del jugador dentro de los límites de la pantalla.
+    if (this.y < 0) {
+      this.y = 0; // Impide que el jugador se mueva más allá del borde superior.
+    } else if (this.y + this.height > this.game.height) {
+      this.y = this.game.height - this.height; // Impide que el jugador se mueva más allá del borde inferior.
+    }
+
   }
   draw(context: any) { // Método de la clase Player para dibujar al jugador en el canvas.
 
@@ -778,8 +803,18 @@ class Player {
     this.game.sound.powerUp();
   }
   jump() {
-    this.y = (this.y) + (-80); // Ajusta para controlar la altura del salto
+    this.y = (this.y) + (-150); // Ajusta para controlar la altura del salto
   }
+  // Método para verificar la colisión con un obstáculo.
+  checkCollisionWithObstacle(obstaculo: Obstaculo) {
+    return (
+      this.x < obstaculo.x + obstaculo.width &&
+      this.x + this.width > obstaculo.x &&
+      this.y < obstaculo.y + obstaculo.height &&
+      this.y + this.height > obstaculo.y
+    );
+  }
+
 }
 class Game {
   // Propiedades básicas del juego, como dimensiones, elementos de juego y estado.
@@ -914,7 +949,6 @@ class Game {
 
     this.obstaculos.forEach(obstaculo => {
       obstaculo.update();
-      console.log(" CREADO OBTÁCULO");
     });
 
     this.enemies.forEach(enemy => {
@@ -1003,6 +1037,7 @@ class Game {
     } else {
       this.obstaculoTimer += deltaTime; // Aumenta el temporizador para la generación de enemigos.
     }
+
   }
   draw(context: any) { // class Game
     // El método 'draw' es responsable de renderizar todos los elementos del juego en el contexto del canvas.
@@ -1216,7 +1251,8 @@ class Enemy {
     // Los parámetros incluyen la imagen, las coordenadas de recorte para la animación (basadas en 'frameX' y 'frameY'),
     // y las dimensiones de recorte, así como la posición y tamaño final en el canvas.
     // Esto permite mostrar diferentes frames de la animación del enemigo, creando el efecto de movimiento o actividad.
-    context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
+    context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height,
+      this.width, this.height, this.x, this.y, this.width, this.height);
 
     // En modo de depuración, muestra la cantidad de vidas que le quedan al enemigo.
     // Esto ayuda a entender mejor cómo funciona la mecánica de daño y vida en el juego durante la fase de desarrollo.
@@ -1300,9 +1336,10 @@ class Obstaculo {
     }
   }
   draw(context: any) {
-    // Dibuja un rectángulo simple como obstáculo
-    context.fillStyle = 'red'; // Color del obstáculo
-    context.fillRect(this.x, this.y, this.width, this.height);
+
+    context.drawImage(this.image, this.frameX * this.width,
+      this.frameY * this.height, this.width, this.height, this.x, this.y,
+      this.width, this.height);
   }
 
   // Método para detectar colisión con el jugador
@@ -1316,12 +1353,12 @@ class Obstaculo {
 class Obstaculo1 extends Obstaculo {
   constructor(game: Game) {
     super(game);
-    this.width = 228;
+    this.width = 20;
     this.height = 50;
     //Posición en pantalla
     this.y = this.game.height - this.height;
-    this.image = document.getElementById('angler1');
-    this.frameY = 2;
+    this.image = document.getElementById('obstaculo1');
+    this.frameY = Math.floor(Math.random() * 3);
     /* this.frameY = Math.floor(Math.random() * 3); */
     this.lives = 100;
     this.score = this.lives;
