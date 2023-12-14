@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ObstacleComponent } from '../game/obstacle/obstacle.component';
 
 class InputHandler {
   // InputHandler: Clase para gestionar las entradas de teclado en el juego.
@@ -26,7 +27,6 @@ class InputHandler {
       } else if (event.key.toLowerCase() === 'z') {
         // Si se presiona la tecla 'z', realiza la acción de saltar.
         // Aquí se puede llamar a un método del jugador que maneje la lógica del salto.
-        console.log("Tecla 'z' añadida a game.keys:", this.game.keys);
         this.game.player.jump();
         // Añade la tecla 'z' al array de teclas si no está ya incluida
         if (this.game.keys.indexOf('z') === -1) {
@@ -339,7 +339,6 @@ class Shield {
     this.game.sound.shield();
   }
 }
-
 class Projectile {
   // La clase Projectile define las características y comportamientos de los proyectiles disparados en el juego.
 
@@ -591,7 +590,7 @@ class Player {
     this.powerUp = false; // Inicia sin power-up.
     this.powerUpTimer = 0; // Inicia el temporizador del power-up en 0.
     this.powerUpLimit = 10000; // Establece el límite del power-up en 10000 ms (10 segundos).
-    this.gravity = 5; // Ajusta este valor según sea necesario
+    this.gravity = 2; // Ajusta este valor según sea necesario
     this.velocityY = 0; // Velocidad inicial en Y
     this.isJumping = false; // Estado de salto
   }
@@ -600,9 +599,7 @@ class Player {
     // Controla el movimiento vertical del jugador basándose en las teclas presionadas.
     if (this.game.keys.includes('ArrowUp')) {
       // Si la tecla 'ArrowUp' está presionada, mueve el jugador hacia arriba.
-      console.log("ArrowUp - AFTER : " + this.speedY + this.y);
       this.speedY = -this.maxSpeed;
-      console.log("ArrowUp - BEFORE : " + this.speedY);
     } else if (this.game.keys.includes('ArrowDown')) {
       // Si la tecla 'ArrowDown' está presionada, mueve el jugador hacia abajo.
       this.speedY = this.maxSpeed;
@@ -681,7 +678,10 @@ class Player {
           // Aplica gravedad solo si no está saltando
           this.speedY += this.gravity;
         } */
+
+    this.speedY += this.gravity;
     this.y += this.speedY;
+
 
     // Verifica si el jugador ha aterrizado
     if (this.y > this.game.height - this.height) {
@@ -689,7 +689,6 @@ class Player {
       // Restablece el estado de salto
       this.speedY = 0; // Restablece la velocidad vertical
     }
-
   }
   draw(context: any) { // Método de la clase Player para dibujar al jugador en el canvas.
 
@@ -780,8 +779,6 @@ class Player {
   }
   jump() {
     this.y = (this.y) + (-80); // Ajusta para controlar la altura del salto
-    console.log("This.speed - AFTER: " + this.speedY);
-
   }
 }
 class Game {
@@ -791,6 +788,7 @@ class Game {
   background: Background; // Fondo del juego.
   player: Player; // Objeto del jugador.
   keys: string[] = []; // Array para almacenar las teclas presionadas.
+  obstaculos: Obstaculo[];
   debug: boolean; // Bandera para el modo de depuración.
   ammo: number; // Contador de munición del jugador.
   maxAmmo: number; // Máxima munición disponible.
@@ -803,6 +801,8 @@ class Game {
   shield: Shield; // Escudo del jugador.
   enemyTimer: number; // Temporizador para generar enemigos.
   enemyInterval: number; // Intervalo entre la generación de enemigos.
+  obstaculoTimer: number; // Temporizador para generar enemigos.
+  obstaculoInterval: number; // Intervalo entre la generación de enemigos.
   gameOver: boolean; // Estado de finalización del juego.
   public y?: number; // Posible posición Y (usado en explosiones).
   public x?: number; // Posible posición X (usado en explosiones).
@@ -824,6 +824,7 @@ class Game {
     this.explosion = new Explosion(this, this.x!, this.y!);//REVISAR CLASE 30 05:24
     this.sound = new SoundController();
     this.shield = new Shield(this);
+    this.obstaculos = []
     this.keys = []; // Initialize the keys array
     this.debug = false;
     this.ammo = 30;
@@ -834,6 +835,8 @@ class Game {
     this.particles = [];
     this.enemyTimer = 0;
     this.enemyInterval = 2000;
+    this.obstaculoTimer = 0;
+    this.obstaculoInterval = 2000;
     this.gameOver = false;
     this.score = 0;
     this.winningScore = 80;
@@ -908,6 +911,12 @@ class Game {
     this.explosions = this.explosions.filter(explosion => !explosion.markedForDeletion); // Elimina las explosiones que han concluido su animación.
     // Actualiza los enemigos y maneja las colisiones con el jugador.
     // La lógica de enemigos puede incluir movimientos, ataques, y detección de colisiones con el jugador o sus disparos.
+
+    this.obstaculos.forEach(obstaculo => {
+      obstaculo.update();
+      console.log(" CREADO OBTÁCULO");
+    });
+
     this.enemies.forEach(enemy => {
       enemy.update(); // Actualiza el estado y posición del enemigo.
       // Verifica colisiones entre el jugador y los enemigos.
@@ -959,7 +968,9 @@ class Game {
           }
         }
       })
+
     });
+
     // Filtra y elimina los enemigos marcados para ser eliminados.
     this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
     /*
@@ -977,14 +988,21 @@ class Game {
       this.enemyTimer += deltaTime; // Aumenta el temporizador para la generación de enemigos.
     }
     /*
-  Este bloque controla la aparición de nuevos enemigos basándose en el tiempo.
-  - Se verifica si el temporizador 'enemyTimer' ha superado un intervalo específico 'enemyInterval'.
+  Este bloque controla la aparición de nuevos obstáculos basándose en el tiempo.
+  - Se verifica si el temporizador 'obstaculoTimer' ha superado un intervalo específico 'obstaculoInterval'.
   - Además, se verifica si el juego no ha terminado ('!this.gameOver').
   - Si ambas condiciones son verdaderas, se llama a 'this.addEnemy()' para generar un nuevo enemigo.
-  - Luego, se reinicia 'enemyTimer' a 0 para comenzar a contar nuevamente hasta el próximo intervalo.
-  - Si el temporizador no ha superado el intervalo o el juego ha terminado, simplemente se incrementa 'enemyTimer' con el tiempo transcurrido ('deltaTime').
+  - Luego, se reinicia 'obstaculoTimer'  a 0 para comenzar a contar nuevamente hasta el próximo intervalo.
+  - Si el temporizador no ha superado el intervalo o el juego ha terminado, simplemente se incrementa 'obstaculoTimer'  con el tiempo transcurrido ('deltaTime').
   - Esto asegura que los enemigos se generen a intervalos regulares y que la generación se detenga cuando el juego termina.
 */
+    if (this.obstaculoTimer > this.obstaculoInterval) { // implementar que termine cuando GAMEOVER Similar
+      // this.obstaculoTimer > this.enemyInterval && !this.gameOver
+      this.addObstaculo(); // Añade un nuevo obstaculo.
+      this.obstaculoTimer = 0; // Reinicia el temporizador para la generación de enemigos.
+    } else {
+      this.obstaculoTimer += deltaTime; // Aumenta el temporizador para la generación de enemigos.
+    }
   }
   draw(context: any) { // class Game
     // El método 'draw' es responsable de renderizar todos los elementos del juego en el contexto del canvas.
@@ -1001,26 +1019,16 @@ class Game {
     // Dibuja el escudo del jugador.
     // 'shield.draw' renderiza el escudo, si está activo, alrededor del jugador, proporcionando una representación visual de protección.
     this.shield.draw(context);
+    this.particles.forEach(particle => particle.draw(context));
     // Dibuja todas las partículas en el juego.
     // 'particles.forEach' recorre y dibuja cada partícula. Las partículas se usan para efectos visuales como chispas, humo, etc.
-    this.particles.forEach(particle => particle.draw(context));
-    /*
-      - 'this.particles.forEach': Este método itera sobre cada partícula en la lista 'this.particles'.
-      - 'particle => particle.draw(context)': Para cada partícula en la lista, se invoca su método 'draw' pasando el contexto del canvas ('context').
-      - Las partículas pueden representar varios efectos visuales como explosiones, chispas, humo, etc., lo que añade realismo y atractivo visual al juego.
-      - Cada partícula se dibuja en su posición y estado actual, lo que puede incluir animaciones y efectos de movimiento.
-    */
+
+    this.obstaculos.forEach(obstaculo => obstaculo.draw(context));
+
 
     // Dibuja todos los enemigos en el juego.
     // 'enemies.forEach' recorre y dibuja cada enemigo. Esto incluye su posición, estado de animación y cualquier efecto especial.
     this.enemies.forEach(enemy => { enemy.draw(context); });
-    /*
-      - 'this.enemies.forEach': Itera sobre cada enemigo en la lista 'this.enemies'.
-      - 'enemy => { enemy.draw(context); }': Cada enemigo tiene un método 'draw' que se llama con el contexto del canvas.
-      - Esta operación se encarga de visualizar a cada enemigo en el canvas, mostrando su ubicación actual, animaciones y cualquier efecto visual asociado a ellos.
-      - Esto es esencial para la interacción del jugador, ya que los enemigos son los principales obstáculos en el juego.
-    */
-
     // Dibuja todas las explosiones en el juego.
     // 'explosions.forEach' recorre y dibuja cada explosión. Estos son efectos visuales que generalmente ocurren durante colisiones o destrucciones.
     this.explosions.forEach(explosion => { explosion.draw(context); });
@@ -1069,6 +1077,12 @@ class Game {
       // Si 'randomize' es mayor o igual a 0.9, añade un enemigo del tipo 'LuckyFish'.
       this.enemies.push(new LuckyFish(this));
     }
+  }
+
+  addObstaculo() {
+    const randomize = this.randomize;
+    this.randomize = Math.random();
+    this.obstaculos.push(new Obstaculo1(this));
   }
   addExplosion(enemy: Enemy) {
     // addExplosion: Método para añadir efectos de explosión cuando un enemigo es destruido.
@@ -1233,13 +1247,57 @@ class Obstaculo {
   height: number; // Altura del sprite del jugador.
   x: number; // Posición en el eje X del jugador en el canvas.
   y: number; // Posición en el eje Y del jugador en el canvas.
+  markedForDeletion: boolean;
+  frameX: number; // Índice de frame actual en la animación en el eje X.
+  frameY: number; // Índice de frame actual en la animación en el eje Y.
+  speedX: number; // Velocidad de movimiento en el eje X.
+  maxFrame: number; // Número máximo de frames en la animación.
+  image: HTMLElement | null = null; // Elemento de imagen del enemigo.
+  lives: number; // Cantidad de vidas o golpes que el enemigo puede recibir.
+  score: number; // Puntos otorgados al jugador por derrotar a este enemigo.
 
   constructor(game: Game) {
     this.game = game;
-    this.x = 20;
-    this.y = 100;
+    this.x = this.game.width;
     this.width = 120;
     this.height = 190;
+    this.markedForDeletion = false;
+    this.frameX = 0;
+    this.frameY = 0;
+    this.speedX = -1.5; // Velocidad aleatoria hacia la izquierda.
+    this.maxFrame = 1; // La animación consta de 37 frames.
+    this.image = document.getElementById('player') as HTMLImageElement; // La imagen se obtiene del documento.
+    this.lives = 5;
+    this.score = this.lives; // El puntaje puede estar relacionado con las vidas.
+    this.y = this.game.height - this.height;
+  }
+
+  update(): void {
+    // Método update: Actualiza la posición, el estado y la animación del enemigo en cada frame del juego.
+
+    // Mueve el enemigo hacia la izquierda en el canvas.
+    // El movimiento se calcula sumando la velocidad del enemigo (speedX) y la velocidad general del juego (game.speed).
+    // 'speedX' es negativo, lo que significa que el enemigo se mueve hacia la izquierda.
+    // La 'game.speed' se resta de 'speedX' para ajustar el movimiento del enemigo en relación a la velocidad general del juego,
+    // lo que puede variar en diferentes fases o niveles del juego.
+    this.x += this.speedX - this.game.speed;
+
+    // Marca el enemigo para ser eliminado si se mueve fuera del área visible del juego.
+    // La condición verifica si la posición 'x' del enemigo, más su ancho, es menor que cero, lo que significa que ha salido completamente de la pantalla.
+    // Si es así, 'markedForDeletion' se establece en 'true', indicando al juego que debe eliminar este objeto enemigo.
+    if (this.x + this.width < 0) this.markedForDeletion = true;
+
+    // Gestión de la animación del sprite del enemigo.
+    // 'frameX' controla el índice actual del frame en la animación del enemigo.
+    // 'maxFrame' es el número total de frames en la animación.
+    // Si 'frameX' es menor que 'maxFrame', incrementa 'frameX' para pasar al siguiente frame.
+    // De lo contrario, si 'frameX' alcanza 'maxFrame', se reinicia a cero para comenzar la animación desde el principio.
+    // Esto crea un bucle de animación que continúa mientras el enemigo esté activo.
+    if (this.frameX < this.maxFrame) {
+      this.frameX++;
+    } else {
+      this.frameX = 0;
+    }
   }
   draw(context: any) {
     // Dibuja un rectángulo simple como obstáculo
@@ -1253,6 +1311,20 @@ class Obstaculo {
       player.x + player.width > this.x &&
       player.y < this.y + this.height &&
       player.y + player.height > this.y;
+  }
+}
+class Obstaculo1 extends Obstaculo {
+  constructor(game: Game) {
+    super(game);
+    this.width = 228;
+    this.height = 50;
+    //Posición en pantalla
+    this.y = this.game.height - this.height;
+    this.image = document.getElementById('angler1');
+    this.frameY = 2;
+    /* this.frameY = Math.floor(Math.random() * 3); */
+    this.lives = 100;
+    this.score = this.lives;
   }
 }
 
