@@ -1,62 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-class Runner {
-  game: Game;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  speedX: number;
-  image: HTMLElement;
-  frameX: number;
-  maxFrame: number;
-  frameY: number;
-
-  constructor(game: Game) {
-    this.game = game;
-    this.width = 120; // Ancho del corredor
-    this.height = 190; // Altura del corredor
-    this.x = 0; // Posición inicial en X
-    this.y = 400; // Posición en Y en la parte inferior de la pantalla
-    this.speedX = 9; // Velocidad de movimiento horizontal
-    this.image = document.getElementById('player')!;; // Imagen del corredor
-    this.frameX = 0; // Índice actual del frame para animaciones
-    this.maxFrame = 5; // Número total de frames para la animación
-    this.frameX = 0; // Inicia en el primer frame para la animación.
-    this.frameY = 0;
-  }
-
-  update() {
-    // Mueve el corredor de izquierda a derecha
-    this.x += this.speedX;
-
-    // Invierte la dirección al llegar a los bordes del canvas
-    if (this.x + this.width > this.game.width || this.x < 0) {
-      this.speedX = -this.speedX;
-    }
-
-    // Maneja la animación del corredor
-    this.frameX++;
-    if (this.frameX > this.maxFrame) this.frameX = 0;
-  }
-
-  draw(context: any) {
-    context.drawImage(
-      this.image, // La imagen (sprite) del jugador.
-      this.frameX * this.width, // La posición X del frame a dibujar desde la imagen del sprite.
-      this.frameY * this.height, // La posición Y del frame a dibujar desde la imagen del sprite.
-      this.width, // Ancho del frame del sprite a dibujar.
-      this.height, // Altura del frame del sprite a dibujar.
-      this.x, // Posición X en el canvas donde se dibujará la imagen.
-      this.y, // Posición Y en el canvas donde se dibujará la imagen.
-      this.width, // Ancho con el que se dibujará la imagen en el canvas.
-      this.height
-    );
-  }
-}
-
-
 class InputHandler {
   // InputHandler: Clase para gestionar las entradas de teclado en el juego.
 
@@ -79,6 +23,16 @@ class InputHandler {
       } else if (event.key === 'd') {
         // Si se presiona la tecla 'd', activa o desactiva el modo de depuración.
         this.game.debug = !this.game.debug;
+      } else if (event.key.toLowerCase() === 'z') {
+        // Si se presiona la tecla 'z', realiza la acción de saltar.
+        // Aquí se puede llamar a un método del jugador que maneje la lógica del salto.
+        console.log("Tecla 'z' añadida a game.keys:", this.game.keys);
+        this.game.player.jump();
+        // Añade la tecla 'z' al array de teclas si no está ya incluida
+        if (this.game.keys.indexOf('z') === -1) {
+          this.game.keys.push('z');
+
+        }
       }
     };
     // Define la lógica para el evento de tecla liberada.
@@ -346,6 +300,8 @@ class SoundController {
     this.shieldSound.play();
   }
 }
+
+
 class Shield {
   game: Game;
   width: number;
@@ -616,6 +572,9 @@ class Player {
   powerUp: boolean; // Indica si el jugador tiene un power-up activo.
   powerUpTimer: number; // Temporizador para la duración del power-up.
   powerUpLimit: number; // Tiempo límite para la duración del power-up.
+  gravity: number; // La fuerza de gravedad aplicada al jugador.
+  velocityY: number;
+  isJumping: boolean;
 
   constructor(game: Game) {
     // Constructor de la clase Player: inicializa las propiedades.
@@ -635,17 +594,25 @@ class Player {
     this.powerUp = false; // Inicia sin power-up.
     this.powerUpTimer = 0; // Inicia el temporizador del power-up en 0.
     this.powerUpLimit = 10000; // Establece el límite del power-up en 10000 ms (10 segundos).
+    this.gravity = 5; // Ajusta este valor según sea necesario
+    this.velocityY = 0; // Velocidad inicial en Y
+    this.isJumping = false; // Estado de salto
   }
   update(deltaTime: number) { // Método de la clase Player para actualizar su estado en cada frame.
 
     // Controla el movimiento vertical del jugador basándose en las teclas presionadas.
     if (this.game.keys.includes('ArrowUp')) {
       // Si la tecla 'ArrowUp' está presionada, mueve el jugador hacia arriba.
+      console.log("ArrowUp - AFTER : " + this.speedY + this.y);
       this.speedY = -this.maxSpeed;
+      console.log("ArrowUp - BEFORE : " + this.speedY);
     } else if (this.game.keys.includes('ArrowDown')) {
       // Si la tecla 'ArrowDown' está presionada, mueve el jugador hacia abajo.
       this.speedY = this.maxSpeed;
-    } else {
+    } /* else if (this.game.keys.includes('z')) {
+      // Si la tecla 'ArrowDown' está presionada, mueve el jugador hacia abajo.
+      this.speedY = this.maxSpeed;
+    } */ else {
       // Si ninguna tecla de movimiento está presionada, detiene el movimiento vertical.
       this.speedY = 0;
     }
@@ -678,7 +645,6 @@ class Player {
       // evitando que el jugador se mueva más arriba del límite permitido.
     }
 
-
     this.projectiles.forEach(projectile => {
       projectile.update(deltaTime);
     });
@@ -708,6 +674,25 @@ class Player {
         this.game.ammo += 0.1; // Aumenta gradualmente la munición del jugador.
       }
     }
+    // Si la tecla 'z' es presionada, realiza el salto
+    if (this.game.keys.includes('z') && !this.isJumping) {
+      console.log("Tecla 'z' presionada:", this.game.keys.includes('z'));
+      this.jump();
+    }
+
+    if (!this.isJumping) {
+      // Aplica gravedad solo si no está saltando
+      this.speedY += this.gravity;
+    }
+    this.y += this.speedY;
+
+    // Verifica si el jugador ha aterrizado
+    if (this.y > this.game.height - this.height) {
+      this.y = this.game.height - this.height;
+      // Restablece el estado de salto
+      this.speedY = 0; // Restablece la velocidad vertical
+    }
+
   }
   draw(context: any) { // Método de la clase Player para dibujar al jugador en el canvas.
 
@@ -796,6 +781,11 @@ class Player {
     // Este efecto sonoro ayuda a proporcionar retroalimentación audible de que el power-up está en efecto.
     this.game.sound.powerUp();
   }
+  jump() {
+    this.y = (this.y) + (-30); // Ajusta para controlar la altura del salto
+    console.log("This.speed - AFTER: " + this.speedY);
+
+  }
 }
 class Game {
   // Propiedades básicas del juego, como dimensiones, elementos de juego y estado.
@@ -826,8 +816,6 @@ class Game {
   speed: number; // Velocidad global del juego, afecta a varios elementos.
   layer1: HTMLImageElement; // Capa del fondo.
   public randomize: number; // Variable para la generación aleatoria de enemigos.
-
-
   explosion: Explosion; // Objeto de explosión.
   sound: SoundController; // Controlador de sonidos.
   constructor(width: number, height: number) {
@@ -1084,8 +1072,6 @@ class Game {
       this.enemies.push(new LuckyFish(this));
     }
   }
-
-
   addExplosion(enemy: Enemy) {
     // addExplosion: Método para añadir efectos de explosión cuando un enemigo es destruido.
 
@@ -1135,6 +1121,7 @@ class Game {
     );
     // Si todas estas condiciones son verdaderas, entonces hay una colisión.
   }
+
 }
 class Enemy {
   // La clase Enemy define las características y comportamientos de los enemigos en el juego.
@@ -1609,7 +1596,7 @@ class UI {
 
     // Convierte el tiempo de juego a segundos y lo muestra.
     const formattedTime = (this.game.gameTime * 0.001).toFixed(1);
-    context.fillText('Pensam: ' + formattedTime, 20, 100);
+    context.fillText('Precio aceite: ' + formattedTime, 20, 100);
 
     // Muestra mensajes de fin de juego según si el jugador ha ganado o perdido.
     if (this.game.gameOver) {
