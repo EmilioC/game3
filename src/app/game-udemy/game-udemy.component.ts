@@ -685,18 +685,12 @@ class Player {
       this.x = this.game.width - this.width; // Impide que el jugador se mueva más allá del borde derecho.
     }
 
-    // Comprueba las colisiones con los obstáculos.
+    // Verifica colisiones con los obstáculos
     this.game.obstaculos.forEach(obstaculo => {
       if (this.checkCollisionWithObstacle(obstaculo)) {
-        // Si la parte derecha del jugador toca el obstáculo, ajusta la posición X.
-        if (this.x + this.width > obstaculo.x && this.x < obstaculo.x) {
-          this.x = obstaculo.x - this.width;
-        }
-
-        // Si la parte inferior del jugador toca el obstáculo, ajusta la posición Y.
-        if (this.y + this.height > obstaculo.y && this.y < obstaculo.y) {
-          this.y = obstaculo.y - this.height;
-        }
+        // Ajusta la posición del jugador para que no atraviese el obstáculo
+        this.y = obstaculo.y - this.height;
+        this.speedY = 0; // Detiene el movimiento vertical
       }
     });
 
@@ -850,6 +844,8 @@ class Game {
   public randomize: number; // Variable para la generación aleatoria de enemigos.
   explosion: Explosion; // Objeto de explosión.
   sound: SoundController; // Controlador de sonidos.
+  obstaculoTypeCounter: number;
+
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
@@ -871,7 +867,7 @@ class Game {
     this.enemyTimer = 0;
     this.enemyInterval = 2000;
     this.obstaculoTimer = 0;
-    this.obstaculoInterval = 2000;
+    this.obstaculoInterval = 4000;
     this.gameOver = false;
     this.score = 0;
     this.winningScore = 80;
@@ -881,6 +877,7 @@ class Game {
     this.layer1 = undefined!;
     this.randomize = 0;
     this.explosions = [];
+    this.obstaculoTypeCounter = 0;
   }
   resize(newWidth: number, newHeight: number): void {
     // Método resize: Se encarga de ajustar las dimensiones del área de juego.
@@ -1115,9 +1112,16 @@ class Game {
   }
 
   addObstaculo() {
-    const randomize = this.randomize;
-    this.randomize = Math.random();
-    this.obstaculos.push(new Obstaculo1(this));
+    // Alternar entre Obstaculo1 y Obstaculo2 basándose en el contador
+    if (this.obstaculoTypeCounter % 2 === 0) {
+      this.obstaculos.push(new Obstaculo1(this));
+    } else {
+      this.obstaculos.push(new Obstaculo2(this));
+    }
+    this.obstaculoTypeCounter++; // Incrementar el contador después de añadir un obstáculo
+
+    // Asegurarse de que el próximo obstáculo se añada solo cuando haya espacio suficiente
+    this.obstaculoTimer = 0;
   }
   addExplosion(enemy: Enemy) {
     // addExplosion: Método para añadir efectos de explosión cuando un enemigo es destruido.
@@ -1276,7 +1280,6 @@ class Enemy {
     context.fillText(this.lives.toString(), this.x, this.y);
   }
 }
-
 class Obstaculo {
   game: Game; // Referencia a la instancia del juego, utilizada para interactuar con otros componentes del juego.
   width: number; // Ancho del sprite del jugador.
@@ -1336,8 +1339,13 @@ class Obstaculo {
     }
   }
   draw(context: any) {
+    /*     // Establece el color del rectángulo, puedes cambiarlo según tus necesidades
+        context.fillStyle = 'yellow'; // Puedes cambiar el color aquí
 
-    context.drawImage(this.image, this.frameX * this.width,
+        // Dibuja un rectángulo en el canvas
+        context.fillRect(this.x, this.y, this.width, this.height); */
+
+    context.drawImage(this.image, this.width,
       this.frameY * this.height, this.width, this.height, this.x, this.y,
       this.width, this.height);
   }
@@ -1353,15 +1361,39 @@ class Obstaculo {
 class Obstaculo1 extends Obstaculo {
   constructor(game: Game) {
     super(game);
-    this.width = 20;
-    this.height = 50;
+    this.width = 200;
+    this.height = 100;
     //Posición en pantalla
     this.y = this.game.height - this.height;
-    this.image = document.getElementById('obstaculo1');
+    this.image = document.getElementById('obstaculo2');
+    this.frameY = Math.floor(Math.random() * 5);
+    /* this.frameY = Math.floor(Math.random() * 3); */
+    this.lives = 100;
+    this.score = this.lives;
+  }
+}
+class Obstaculo2 extends Obstaculo {
+  constructor(game: Game) {
+    super(game);
+    this.width = 200;
+    this.height = 300;
+    //Posición en pantalla
+    this.y = this.game.height - this.height;
+    this.image = document.getElementById('obstaculo3');
     this.frameY = Math.floor(Math.random() * 3);
     /* this.frameY = Math.floor(Math.random() * 3); */
     this.lives = 100;
     this.score = this.lives;
+  }
+
+  override draw(context: any) {
+    context.beginPath();
+    context.moveTo(this.x + this.width / 2, this.y);
+    context.lineTo(this.x, this.y + this.height);
+    context.lineTo(this.x + this.width, this.y + this.height);
+    context.closePath();
+    context.fillStyle = 'blue'; // Puedes cambiar el color
+    context.fill();
   }
 }
 

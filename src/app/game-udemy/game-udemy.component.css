@@ -130,6 +130,7 @@ canvas {
 #fireball,
 #stalker,
 #razorfin,
-#obstaculo1 {
+#obstaculo1,
+#obstaculo2 {
   display: none;
 }
