@@ -590,7 +590,7 @@ class Player {
     this.powerUp = false; // Inicia sin power-up.
     this.powerUpTimer = 0; // Inicia el temporizador del power-up en 0.
     this.powerUpLimit = 10000; // Establece el límite del power-up en 10000 ms (10 segundos).
-    this.gravity = 2; // Ajusta este valor según sea necesario
+    this.gravity = 6; // Ajusta este valor según sea necesario
     this.velocityY = 0; // Velocidad inicial en Y
     this.isJumping = false; // Estado de salto
   }
@@ -1027,12 +1027,32 @@ class Game {
   - Si el temporizador no ha superado el intervalo o el juego ha terminado, simplemente se incrementa 'obstaculoTimer'  con el tiempo transcurrido ('deltaTime').
   - Esto asegura que los enemigos se generen a intervalos regulares y que la generación se detenga cuando el juego termina.
 */
-    if (this.obstaculoTimer > this.obstaculoInterval) { // implementar que termine cuando GAMEOVER Similar
-      // this.obstaculoTimer > this.enemyInterval && !this.gameOver
-      this.addObstaculo(); // Añade un nuevo obstaculo.
-      this.obstaculoTimer = 0; // Reinicia el temporizador para la generación de enemigos.
-    } else {
-      this.obstaculoTimer += deltaTime; // Aumenta el temporizador para la generación de enemigos.
+
+    /* CÓDIGO PARA AÑADIR VARIOS OBSTÁCULOS A LA VEZ
+        if (this.obstaculoTimer > this.obstaculoInterval) { // implementar que termine cuando GAMEOVER Similar
+          // this.obstaculoTimer > this.enemyInterval && !this.gameOver
+          this.addObstaculo(); // Añade un nuevo obstaculo.
+          this.obstaculoTimer = 0; // Reinicia el temporizador para la generación de enemigos.
+        } else {
+          this.obstaculoTimer += deltaTime; // Aumenta el temporizador para la generación de enemigos.
+        }
+     */
+    // Asegurarse de que se añada un nuevo obstáculo solo si el último obstáculo se ha movido lo suficiente
+
+    // Incrementar el temporizador de obstáculos
+    this.obstaculoTimer += deltaTime;
+
+    // Verificar si es tiempo de añadir un nuevo obstáculo
+    if (this.obstaculoTimer > this.obstaculoInterval) {
+      this.addObstaculo();
+
+      // Si el contador es 3 (hueco), esperar otro intervalo antes del próximo obstáculo
+      if (this.obstaculoTypeCounter === 0) {
+        this.obstaculoTimer = -this.obstaculoInterval;
+      } else {
+        // Si no, reiniciar el temporizador para el siguiente obstáculo
+        this.obstaculoTimer = 0;
+      }
     }
 
   }
@@ -1112,17 +1132,26 @@ class Game {
   }
 
   addObstaculo() {
-    // Alternar entre Obstaculo1 y Obstaculo2 basándose en el contador
-    if (this.obstaculoTypeCounter % 2 === 0) {
-      this.obstaculos.push(new Obstaculo1(this));
-    } else {
-      this.obstaculos.push(new Obstaculo2(this));
+    switch (this.obstaculoTypeCounter) {
+      case 0:
+        this.obstaculos.push(new Obstaculo1(this));
+        break;
+      case 1:
+        this.obstaculos.push(new Obstaculo2(this));
+        break;
+      case 2:
+        this.obstaculos.push(new ObstaculoRampa(this));
+        break;
     }
-    this.obstaculoTypeCounter++; // Incrementar el contador después de añadir un obstáculo
 
-    // Asegurarse de que el próximo obstáculo se añada solo cuando haya espacio suficiente
-    this.obstaculoTimer = 0;
+    this.obstaculoTypeCounter = (this.obstaculoTypeCounter + 1) % 4;
+
+    if (this.obstaculoTypeCounter === 0) {
+      // Reiniciar el temporizador después del hueco
+      this.obstaculoTimer = 0;
+    }
   }
+
   addExplosion(enemy: Enemy) {
     // addExplosion: Método para añadir efectos de explosión cuando un enemigo es destruido.
 
@@ -1396,6 +1425,33 @@ class Obstaculo2 extends Obstaculo {
     context.fill();
   }
 }
+class ObstaculoRampa extends Obstaculo {
+  // Constructor de la clase ObstaculoRampa
+  constructor(game: Game) {
+    super(game);
+    this.width = 200; // Ancho de la rampa
+    this.height = 100; // Altura de la rampa
+    // Configuraciones adicionales de la rampa
+    this.y = this.game.height - this.height; // Posición Y basada en la altura del juego
+    this.x = this.game.width; // Posición X al final del área de juego
+    // Puedes agregar más configuraciones si son necesarias
+  }
+
+  override draw(context: any) {
+    // Dibuja la rampa aquí
+    context.beginPath();
+    context.moveTo(this.x, this.y + this.height);
+    context.lineTo(this.x + this.width / 2, this.y);
+    context.lineTo(this.x + this.width, this.y + this.height);
+    context.closePath();
+    context.fillStyle = 'green'; // Color de la rampa
+    context.fill();
+  }
+
+  // ... otros métodos si son necesarios ...
+}
+
+
 
 class Angler1 extends Enemy {
   constructor(game: Game) {
